@@ -6,8 +6,19 @@
 
     <!-- <div>{{ keysPressed }}</div> -->
     <p>Position: {{ ship.position.x!.toFixed(2) }}, {{ ship.position.y!.toFixed(2) }}</p>
+    <div class="canvas-container">
+      <CanvasWithControls :ship="ship"  :other-objects="[otherObject]" :background="true"></CanvasWithControls>
+      <CanvasWithControls :ship="ship" :other-objects="[otherObject]" :background="false" :canvas-size="{ x: 250, y: 250 }"></CanvasWithControls>
+
+      <!-- <div class="canvas-controls">
     <MagnificationControls @input="handleMagnificationChange"></MagnificationControls>
     <Canvas :ship="ship" :magnification="magnification" :background="true"></Canvas>
+  </div>
+  <div class="canvas-controls">
+    <MagnificationControls @input="handleMagnificationChange"></MagnificationControls>
+    <Canvas :ship="ship" :magnification="magnification" :background="false" :canvas-size="{ x: 250, y: 250 }"></Canvas>
+  </div> -->
+  </div>
   </template>
   
   <script setup lang="ts">
@@ -15,18 +26,15 @@
   import { useKeyPress } from '../composables/useKeyPress';
   import { useMovement } from '../composables/useMovement';
   import { Ship } from '../entitites/ship';
-  import MagnificationControls from '../components/MagnificationControls.vue';
-  import Canvas from '../components/Canvas.vue';
+  import CanvasWithControls from './CanvasWithControls.vue';
+  // import MagnificationControls from '../components/MagnificationControls.vue';
+  // import Canvas from '../components/Canvas.vue';
   
   
-  const magnification = ref(1); // Initialize magnification
   const { keysPressed, onKeydown, onKeyup } = useKeyPress();
-  const ship = ref(new Ship('ship', 100, { x: 0, y: 0 }, { x: 0, y: 0 }));
+  const ship = ref(new Ship('ship', 100, { x: 0, y: 0 }, { x: 0, y: 0 }, 100));
+  const otherObject = ref(new Ship('otherobj', 100, { x: 0, y: 0 }, { x: 0, y: 0 }, 100));
   const { updateShipMovement } = useMovement(ship.value, keysPressed);
-  
-  function handleMagnificationChange(val: number) {
-    magnification.value = val;
-  }
   
   onMounted(() => {
     window.addEventListener('keydown', onKeydown);
@@ -43,4 +51,10 @@
   
   });
   </script>
+  <style>
+  .canvas-container {
+    display: flex;
+    flex-direction: row;
+  }
+</style>
   

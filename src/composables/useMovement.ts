@@ -26,7 +26,6 @@ export function useMovement(ship: Ship, keysPressed: Set<string>) {
 
       const x = currentThrustX * Math.cos(ship.rotationAngle - Math.PI / 2);
       const y = currentThrustY * Math.sin(ship.rotationAngle - Math.PI / 2);
-      console.log(x, y);
       ship.applyThrust({ x, y });
     } else {
       currentThrustX = Math.min(currentThrustX + thrustIncrement, maxThrust);

@@ -1,8 +1,8 @@
 <template>
     <div class="magnification-controls">
-      <button @click="changeMagnification(-.1)">-</button>
+      <button @click="changeMagnification(.1)">-</button>
       <span>{{ roundedMagnification }}</span>
-      <button @click="changeMagnification(.1)">+</button>
+      <button @click="changeMagnification(-.1)">+</button>
     </div>
   </template>
   

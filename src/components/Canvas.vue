@@ -1,6 +1,6 @@
 <template>
 <div>
-    <canvas width="500" height="500"  ref="myCanvas" style="background-color: black; border:1px solid #000000;"></canvas>
+    <canvas :width="canvasSize.x" :height="canvasSize.y"  ref="myCanvas" style="background-color: black; border:1px solid #000000;"></canvas>
 </div>
 </template>
 
@@ -22,6 +22,18 @@ const props = defineProps({
   },
   background: {
     default: false,
+    type: Boolean,
+  },
+  canvasSize: {
+    default: { x: 500, y: 500 },
+    type: Object,
+  },
+  otherObjects: {
+    default: () => [],
+    type: Array as () => Ship[],
+  },
+  drawOtherObjects: {
+    default: true,
     type: Boolean,
   }
 });
@@ -45,7 +57,7 @@ function updateBackgroundPosition(velocity: Vector2D, offset: Vector2D): Vector2
 
 
 let animationFrameId: number;
-const starBackgroundCtx = createStarField(starBackgroundSize, starBackgroundSize, 500);
+const starBackgroundCtx = createStarField(starBackgroundSize, starBackgroundSize, props.canvasSize.x);
 
 function draw() {
   const canvas = myCanvas.value;
@@ -54,8 +66,9 @@ function draw() {
   if (ctx && starBackgroundCtx) {
     ctx.clearRect(0, 0, canvas!.width, canvas!.height);
 
-    ctx.save();
-    ctx.scale(props.magnification, props.magnification);
+    // Calculate the scale factor: number of world units per canvas unit
+    const scaleFactor = 1 / props.magnification; // Adjust this formula as needed
+
 
     if (props.background) {
 
@@ -72,39 +85,53 @@ function draw() {
 
       for (let x = startX - adjustedTileWidth; x < canvas!.width / props.magnification + adjustedTileWidth; x += adjustedTileWidth) {
         for (let y = startY - adjustedTileHeight; y < canvas!.height / props.magnification + adjustedTileHeight; y += adjustedTileHeight) {
-          console.log('here');
           ctx.drawImage(starBackgroundCtx.canvas, x, y, adjustedTileWidth, adjustedTileHeight);
         }
       }
 
       // const adjustedRadius = radius * props.magnification;
     }
+    if (props.drawOtherObjects) {
+      drawOtherObjects(ctx, props.otherObjects!, scaleFactor);
+    }
 
-    const centerX = canvas!.width / 2;
-      const centerY = canvas!.height / 2;
-      const adjustedCenterX = centerX / props.magnification;
-    const adjustedCenterY = centerY / props.magnification;
-      
     if (shipImage.complete) { 
-      const shipWidth = shipImage.width * props.magnification * .15; 
-      const shipHeight = shipImage.height * props.magnification * .15;
-      // ctx.drawImage(shipImage, adjustedCenterX - shipWidth / 2, adjustedCenterY - shipHeight / 2, shipWidth, shipHeight);
+      const shipWidth = shipImage.width * scaleFactor * .15;
+      const shipHeight = shipImage.height * scaleFactor * .15; 
 
-      ctx.translate(adjustedCenterX, adjustedCenterY); 
+      ctx.translate(canvas!.width / 2, canvas!.height / 2);
       ctx.rotate(props.ship!.rotationAngle); 
       ctx.drawImage(shipImage, -shipWidth / 2, -shipHeight / 2, shipWidth, shipHeight); 
       ctx.rotate(-props.ship!.rotationAngle); 
-      ctx.translate(-centerX, -centerY); 
+      ctx.translate(-canvas!.width / 2, -canvas!.height / 2);
     }
-    // ctx.beginPath();
-    // ctx.arc(adjustedCenterX + 200, adjustedCenterY, 100 * props.magnification, 0, 2 * Math.PI, false);
-    // ctx.fillStyle = 'green';
-    ctx.fill();
+
     ctx.restore();
   }
 
   animationFrameId = requestAnimationFrame(draw);
 }
+
+
+
+function drawOtherObjects(ctx: CanvasRenderingContext2D, otherObjects: Array<Ship>, scaleFactor: number) {
+  otherObjects.forEach((obj) => {
+    const canvasCenterX = props.canvasSize.x / 2;
+    const canvasCenterY = props.canvasSize.y / 2;
+    const relativeObjX = ((obj.position.x! - props.ship!.position.x!) * scaleFactor) + canvasCenterX;
+    const relativeObjY = ((obj.position.y! - props.ship!.position.y!) * scaleFactor) + canvasCenterY;
+
+    const adjustedRadius = obj.radius * scaleFactor;
+
+    ctx.beginPath();
+    ctx.arc(relativeObjX, relativeObjY, adjustedRadius, 0, 2 * Math.PI);
+    ctx.fillStyle = 'red';
+    ctx.fill();
+  });
+}
+
+
+
 
 
 onMounted(() => {
@@ -115,3 +142,4 @@ onUnmounted(() => {
   cancelAnimationFrame(animationFrameId);
 });
 </script>
+

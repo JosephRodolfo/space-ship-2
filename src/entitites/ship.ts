@@ -5,12 +5,14 @@ export class Ship {
     position: Vector2D;
     velocity: Vector2D;
     mass: number;
+    radius: number;
     acceleration: Vector2D;
     private _rotationAngle?: number; 
-    constructor(name: string, mass: number, position: Vector2D, velocity: Vector2D) {
+    constructor(name: string, mass: number, position: Vector2D, velocity: Vector2D, radius: number) {
             
         this.name = name;
         this.mass = mass;
+        this.radius = radius;
         this.position = position; 
         this.velocity = velocity; 
         this.acceleration = { x: 0, y: 0 };
