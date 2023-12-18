@@ -1,5 +1,6 @@
 import { computed, onUnmounted, ref } from 'vue';
 import { Ship } from '../entitites/ship';
+const ROTATION_INCREMENT = 1 * (Math.PI / 180);
 
 export function useMovement(ship: Ship, keysPressed: Set<string>) {
   const thrustIncrement = 0.000001;
@@ -21,8 +22,12 @@ export function useMovement(ship: Ship, keysPressed: Set<string>) {
   const applyThrust = (direction: 'up' | 'down' | 'left' | 'right') => {
     if (direction === 'up' || direction === 'down') {
       currentThrustY = Math.min(currentThrustY + thrustIncrement, maxThrust);
-      const thrustValue = direction === 'up' ? -currentThrustY : currentThrustY;
-      ship.applyThrust({ y: thrustValue, x: 0 });
+      currentThrustX = Math.min(currentThrustY + thrustIncrement, maxThrust);
+
+      const x = currentThrustX * Math.cos(ship.rotationAngle - Math.PI / 2);
+      const y = currentThrustY * Math.sin(ship.rotationAngle - Math.PI / 2);
+      console.log(x, y);
+      ship.applyThrust({ x, y });
     } else {
       currentThrustX = Math.min(currentThrustX + thrustIncrement, maxThrust);
       const thrustValue = direction === 'left' ? -currentThrustX : currentThrustX;
@@ -73,8 +78,14 @@ export function useMovement(ship: Ship, keysPressed: Set<string>) {
       }
       if (keysPressed.has('w')) startThrust('up');
       if (keysPressed.has('s')) startThrust('down');
-      if (keysPressed.has('a')) startThrust('left');
-      if (keysPressed.has('d')) startThrust('right');
+      // if (keysPressed.has('a')) startThrust('left');
+      // if (keysPressed.has('d')) startThrust('right');
+      if (keysPressed.has('a')) {
+        ship.addRotation(-ROTATION_INCREMENT);
+    }
+    if (keysPressed.has('d')) {
+        ship.addRotation(ROTATION_INCREMENT); 
+    }
     }
   });
 
@@ -82,8 +93,14 @@ export function useMovement(ship: Ship, keysPressed: Set<string>) {
   const updateLoop = () => {
     if (keysPressed.has('w')) applyThrust('up');
     if (keysPressed.has('s')) applyThrust('down');
-    if (keysPressed.has('a')) applyThrust('left');
-    if (keysPressed.has('d')) applyThrust('right');
+    // if (keysPressed.has('a')) applyThrust('left');
+    // if (keysPressed.has('d')) applyThrust('right');
+    if (keysPressed.has('a')) {
+      ship.addRotation(-ROTATION_INCREMENT); // Rotate left
+  }
+  if (keysPressed.has('d')) {
+      ship.addRotation(ROTATION_INCREMENT); // Rotate right
+  }
 
     ship.updatePhysics(1);
     ship.updatePosition(1);

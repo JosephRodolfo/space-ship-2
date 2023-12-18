@@ -2,11 +2,12 @@
     <p>Velocity X: {{ ship.velocity.x!.toFixed(2) }}</p>
     <p>Velocity Y: {{ ship.velocity.y!.toFixed(2) }}</p>
     <p>Accleration X: {{ ship.acceleration.x!.toFixed(2) }} Accleration Y: {{ ship.acceleration.y?.toFixed(2) }}</p>
-  
+    <p>Angle: {{ (ship.rotationAngle * (180 / Math.PI)).toFixed(0) }}</p>
+
     <!-- <div>{{ keysPressed }}</div> -->
     <p>Position: {{ ship.position.x!.toFixed(2) }}, {{ ship.position.y!.toFixed(2) }}</p>
     <MagnificationControls @input="handleMagnificationChange"></MagnificationControls>
-    <Canvas :ship="ship" :magnification="magnification"></Canvas>
+    <Canvas :ship="ship" :magnification="magnification" :background="true"></Canvas>
   </template>
   
   <script setup lang="ts">
