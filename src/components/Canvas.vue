@@ -66,8 +66,7 @@ function draw() {
   if (ctx && starBackgroundCtx) {
     ctx.clearRect(0, 0, canvas!.width, canvas!.height);
 
-    // Calculate the scale factor: number of world units per canvas unit
-    const scaleFactor = 1 / props.magnification; // Adjust this formula as needed
+    const scaleFactor = 1 / props.magnification; 
 
 
     if (props.background) {
@@ -96,8 +95,8 @@ function draw() {
     }
 
     if (shipImage.complete) { 
-      const shipWidth = shipImage.width * scaleFactor * .15;
-      const shipHeight = shipImage.height * scaleFactor * .15; 
+      const shipWidth = shipImage.width * scaleFactor * .15 + 10;
+      const shipHeight = shipImage.height * scaleFactor * .15 + 10; 
 
       ctx.translate(canvas!.width / 2, canvas!.height / 2);
       ctx.rotate(props.ship!.rotationAngle); 

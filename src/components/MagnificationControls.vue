@@ -1,15 +1,22 @@
 <template>
     <div class="magnification-controls">
       <button @click="changeMagnification(.1)">-</button>
-      <span>{{ roundedMagnification }}</span>
+      <span>{{ roundedMagnification.toFixed(1) }}</span>
       <button @click="changeMagnification(-.1)">+</button>
     </div>
   </template>
   
   <script lang="ts" setup>
   import { ref, defineEmits, computed } from 'vue';
+
+    const props = defineProps({
+      initialMagnificatoin: {
+    default: 1,
+    type: Number,
+  }
+  });
   
-  const magnification = ref(1);
+  const magnification = ref(props.initialMagnificatoin);
   const emit = defineEmits(['input']);
   
   const changeMagnification = (value: number) => {
