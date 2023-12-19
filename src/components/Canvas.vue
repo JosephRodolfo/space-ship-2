@@ -45,14 +45,17 @@ const shipImage = new Image();
 shipImage.src = shipSvg;
 
 function updateBackgroundPosition(velocity: Vector2D, offset: Vector2D): Vector2D {
-  let newXOffset = offset.x! + (velocity.x || 0);
-  let newYOffset = offset.y! + (velocity.y || 0);
+  const movementScaleFactor = .00001; 
+
+  let newXOffset = offset.x! + (velocity.x || 0 / 100000000000) * movementScaleFactor;
+  let newYOffset = offset.y! + (velocity.y || 0 / 100000000000) * movementScaleFactor;
 
   return { 
     x: (newXOffset + starBackgroundSize) % starBackgroundSize, 
     y: (newYOffset + starBackgroundSize) % starBackgroundSize 
   };
 }
+
 
 
 
@@ -66,7 +69,7 @@ function draw() {
   if (ctx && starBackgroundCtx) {
     ctx.clearRect(0, 0, canvas!.width, canvas!.height);
 
-    const scaleFactor = 1 / props.magnification; 
+    const scaleFactor = 1 / Number(props.magnification); 
 
 
     if (props.background) {
@@ -82,8 +85,8 @@ function draw() {
       const startX = -(bgX! % adjustedTileWidth);
       const startY = -(bgY! % adjustedTileHeight);
 
-      for (let x = startX - adjustedTileWidth; x < canvas!.width / props.magnification + adjustedTileWidth; x += adjustedTileWidth) {
-        for (let y = startY - adjustedTileHeight; y < canvas!.height / props.magnification + adjustedTileHeight; y += adjustedTileHeight) {
+      for (let x = startX - adjustedTileWidth; x < canvas!.width / Number(props.magnification) + adjustedTileWidth; x += adjustedTileWidth) {
+        for (let y = startY - adjustedTileHeight; y < canvas!.height / Number(props.magnification) + adjustedTileHeight; y += adjustedTileHeight) {
           ctx.drawImage(starBackgroundCtx.canvas, x, y, adjustedTileWidth, adjustedTileHeight);
         }
       }
@@ -104,6 +107,19 @@ function draw() {
       ctx.rotate(-props.ship!.rotationAngle); 
       ctx.translate(-canvas!.width / 2, -canvas!.height / 2);
     }
+    ctx.save();
+    const worldScaleBarLength = 100;
+    const canvasScaleBarLength = worldScaleBarLength * scaleFactor; 
+
+    const scaleBarX = 10;
+    const scaleBarY = canvas!.height - 20;
+    const scaleBarHeight = 10; 
+
+    ctx.fillStyle = 'white';
+    ctx.fillRect(scaleBarX, scaleBarY, canvasScaleBarLength, scaleBarHeight);
+
+    ctx.font = '14px Arial';
+    ctx.fillText(`${worldScaleBarLength} units`, scaleBarX + canvasScaleBarLength + 5, scaleBarY + scaleBarHeight / 2 + 5);
 
     ctx.restore();
   }

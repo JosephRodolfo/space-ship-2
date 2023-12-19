@@ -5,7 +5,7 @@
         Hide other: {{ !hideOtherObjects }}
       </button>
       <MagnificationControls
-        :initialMagnificatoin="defaultMagnification"
+        :initialMagnificatoin="Number(defaultMagnification)"
         @input="handleMagnificationChange"
       ></MagnificationControls>
     </div>
@@ -14,7 +14,7 @@
         :ship="ship"
         :draw-other-objects="hideOtherObjects"
         :other-objects="otherObjects"
-        :magnification="magnification"
+        :magnification="Number(magnification)"
         :background="background"
         :canvas-size="canvasSize"
       ></Canvas>

@@ -1,17 +1,23 @@
-import { computed, onUnmounted, ref } from 'vue';
-import { Ship } from '../entitites/ship';
+import { computed, onUnmounted, ref } from "vue";
+import { Ship } from "../entitites/ship";
+import { Physics } from "../entitites/physics";
 const ROTATION_INCREMENT = 1 * (Math.PI / 180);
+const physics: Physics = new Physics();
 
-export function useMovement(ship: Ship, keysPressed: Set<string>) {
+export function useMovement(
+  ship: Ship,
+  keysPressed: Set<string>,
+  otherObjects: Ship[]
+) {
   const thrustIncrement = 0.000001;
   const maxThrust = 0.1;
-  let currentThrustY = 0; 
-  let currentThrustX = 0; 
+  let currentThrustY = 0;
+  let currentThrustX = 0;
   let thrustIntervalY: number | null = null;
   let thrustIntervalX: number | null = null;
   let positionInterval: number | null = null;
 
-    const startPositionUpdate = () => {
+  const startPositionUpdate = () => {
     if (positionInterval === null) {
       positionInterval = setInterval(() => {
         ship.updatePosition(1);
@@ -19,8 +25,8 @@ export function useMovement(ship: Ship, keysPressed: Set<string>) {
     }
   };
 
-  const applyThrust = (direction: 'up' | 'down' | 'left' | 'right') => {
-    if (direction === 'up' || direction === 'down') {
+  const applyThrust = (direction: "up" | "down" | "left" | "right") => {
+    if (direction === "up" || direction === "down") {
       currentThrustY = Math.min(currentThrustY + thrustIncrement, maxThrust);
       currentThrustX = Math.min(currentThrustY + thrustIncrement, maxThrust);
 
@@ -29,13 +35,14 @@ export function useMovement(ship: Ship, keysPressed: Set<string>) {
       ship.applyThrust({ x, y });
     } else {
       currentThrustX = Math.min(currentThrustX + thrustIncrement, maxThrust);
-      const thrustValue = direction === 'left' ? -currentThrustX : currentThrustX;
+      const thrustValue =
+        direction === "left" ? -currentThrustX : currentThrustX;
       ship.applyThrust({ x: thrustValue, y: 0 });
     }
   };
 
-  const startThrust = (direction: 'up' | 'down' | 'left' | 'right') => {
-    if (direction === 'up' || direction === 'down') {
+  const startThrust = (direction: "up" | "down" | "left" | "right") => {
+    if (direction === "up" || direction === "down") {
       if (thrustIntervalY !== null) {
         clearInterval(thrustIntervalY);
       }
@@ -57,53 +64,71 @@ export function useMovement(ship: Ship, keysPressed: Set<string>) {
     if (thrustIntervalX !== null) {
       clearInterval(thrustIntervalX);
       thrustIntervalX = null;
-      currentThrustX = 0; 
+      currentThrustX = 0;
     }
-        clearInterval(positionInterval!); 
+    clearInterval(positionInterval!);
     positionInterval = null;
   };
 
   const updateShipMovement = computed(() => {
-    if ((!keysPressed.has('w') && !keysPressed.has('s') && !keysPressed.has('a') && !keysPressed.has('d')) ||
-        (keysPressed.has('w') && keysPressed.has('s')) ||
-        (keysPressed.has('a') && keysPressed.has('d'))) {
+    if (
+      (!keysPressed.has("w") &&
+        !keysPressed.has("s") &&
+        !keysPressed.has("a") &&
+        !keysPressed.has("d")) ||
+      (keysPressed.has("w") && keysPressed.has("s")) ||
+      (keysPressed.has("a") && keysPressed.has("d"))
+    ) {
       stopThrust();
       ship.acceleration = { x: 0, y: 0 };
-      startPositionUpdate(); 
+      startPositionUpdate();
     } else {
       if (positionInterval !== null) {
-        clearInterval(positionInterval); 
+        clearInterval(positionInterval);
         positionInterval = null;
       }
-      if (keysPressed.has('w')) startThrust('up');
-      if (keysPressed.has('s')) startThrust('down');
+      if (keysPressed.has("w")) startThrust("up");
+      if (keysPressed.has("s")) startThrust("down");
       // if (keysPressed.has('a')) startThrust('left');
       // if (keysPressed.has('d')) startThrust('right');
-      if (keysPressed.has('a')) {
+      if (keysPressed.has("a")) {
         ship.addRotation(-ROTATION_INCREMENT);
-    }
-    if (keysPressed.has('d')) {
-        ship.addRotation(ROTATION_INCREMENT); 
-    }
+      }
+      if (keysPressed.has("d")) {
+        ship.addRotation(ROTATION_INCREMENT);
+      }
     }
   });
 
   const frameRef = ref<number>();
   const updateLoop = () => {
-    if (keysPressed.has('w')) applyThrust('up');
-    if (keysPressed.has('s')) applyThrust('down');
+    if (keysPressed.has("w")) applyThrust("up");
+    if (keysPressed.has("s")) applyThrust("down");
     // if (keysPressed.has('a')) applyThrust('left');
     // if (keysPressed.has('d')) applyThrust('right');
-    if (keysPressed.has('a')) {
-      ship.addRotation(-ROTATION_INCREMENT); // Rotate left
-  }
-  if (keysPressed.has('d')) {
-      ship.addRotation(ROTATION_INCREMENT); // Rotate right
-  }
+    if (keysPressed.has("a")) {
+      ship.addRotation(-ROTATION_INCREMENT);
+    }
+    if (keysPressed.has("d")) {
+      ship.addRotation(ROTATION_INCREMENT);
+    }
+    ship.acceleration = { x: 0, y: 0 };
+    otherObjects.forEach((otherShip) => {
+      const gravitationalForce = physics.calculateGravitationalForce(
+        ship,
+        otherShip
+      );
+      ship.applyForce(
+        { x: gravitationalForce.x!, y: gravitationalForce.y! },
+        1
+      );
+    });
 
     ship.updatePhysics(1);
     ship.updatePosition(1);
-    frameRef.value = requestAnimationFrame(updateLoop);
+    setTimeout(() => {
+      frameRef.value = requestAnimationFrame(updateLoop);
+    });
   };
 
   frameRef.value = requestAnimationFrame(updateLoop);
@@ -116,4 +141,3 @@ export function useMovement(ship: Ship, keysPressed: Set<string>) {
 
   return { updateShipMovement };
 }
-

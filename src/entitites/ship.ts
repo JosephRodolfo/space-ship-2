@@ -1,5 +1,4 @@
 import { Vector2D } from "../interfaces";
-
 export class Ship {
     name: string;
     position: Vector2D;
@@ -24,6 +23,17 @@ export class Ship {
         this.acceleration.y! += y || 0;
     }
 
+    applyForce(force: Vector2D, timeStep: number) {
+        // Scale the force based on the time step
+        const scaledForce = {
+            x: force.x! * timeStep,
+            y: force.y! * timeStep
+        };
+    
+        // Update acceleration
+        this.acceleration.x! += scaledForce.x / this.mass;
+        this.acceleration.y! += scaledForce.y / this.mass;
+    }
     updatePhysics(timeStep: number) {
         this.velocity.x! += this.acceleration.x! * timeStep;
         this.velocity.y! += this.acceleration.y! * timeStep;
