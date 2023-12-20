@@ -43,10 +43,10 @@ const myCanvas = ref<HTMLCanvasElement | null>(null);
 const backgroundOffset = ref({ x: 0, y: 0 });
 const starBackgroundSize = 1000;
 const shipImage = new Image();
-shipImage.src = shipSvg;
 const fireImage = new Image();
-fireImage.src = fireSvg;
 const stars = ref<Vector2D[]>([])
+const shipImageLoaded = ref(false);
+const fireImageLoaded = ref(false);
 
 function updateBackgroundPosition(velocity: Vector2D, offset: Vector2D): Vector2D {
   const movementScaleFactor = .00001; 
@@ -114,8 +114,7 @@ const shipAndThrusterCtx = computed(() => {
 
   offScreenCanvas.width = shipWidth;
   offScreenCanvas.height = shipHeight + (props.ship!.firingThruster ? shipHeight : 0);
-
-  if (props.ship!.firingThruster && fireImage.complete) {
+  if (fireImageLoaded.value, props.ship!.firingThruster && fireImage.complete) {
     ctx!.save();
     ctx!.translate(shipWidth / 2, shipHeight + shipHeight / 2); 
     ctx!.rotate(Math.PI); 
@@ -123,7 +122,7 @@ const shipAndThrusterCtx = computed(() => {
     ctx!.restore();
   }
 
-  if (shipImage.complete) {
+  if (shipImageLoaded.value && shipImage.complete) {
     ctx!.drawImage(shipImage, 0, 0, shipWidth, shipHeight); 
   }
 
@@ -198,6 +197,16 @@ function drawOtherObjects(ctx: CanvasRenderingContext2D, otherObjects: Array<Shi
 onMounted(() => {
   stars.value = generateStarPositions(starBackgroundSize, props.canvasSize.y, props.canvasSize.x)
   animationFrameId = requestAnimationFrame(draw);
+  shipImage.onload = () => {
+    shipImageLoaded.value = true;
+  };
+  shipImage.src = shipSvg;
+
+  fireImage.onload = () => {
+    fireImageLoaded.value = true;
+  };
+  fireImage.src = fireSvg;
+
 
 });
 
