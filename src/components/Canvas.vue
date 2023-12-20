@@ -10,6 +10,7 @@ import { generateStarPositions, renderStarField } from '../helpers/createBackgro
 import { Ship } from '../entitites/ship';
 import { Vector2D } from '../interfaces';
 import shipSvg from '../assets/gray-ship.svg';
+import fireSvg from '../assets/blue-fire.svg';
 const props = defineProps({
   ship: Object as () => Ship,
   magnification: {
@@ -43,6 +44,8 @@ const backgroundOffset = ref({ x: 0, y: 0 });
 const starBackgroundSize = 1000;
 const shipImage = new Image();
 shipImage.src = shipSvg;
+const fireImage = new Image();
+fireImage.src = fireSvg;
 const stars = ref<Vector2D[]>([])
 
 function updateBackgroundPosition(velocity: Vector2D, offset: Vector2D): Vector2D {
@@ -103,6 +106,30 @@ const shipWidth = shipImage.width * logScaleFactor * shipWidthMultiplier;
 const shipHeight = shipImage.height * logScaleFactor * shipHeightMultiplier;
 return { shipHeight, shipWidth };
 })
+
+const shipAndThrusterCtx = computed(() => {
+  const offScreenCanvas = document.createElement('canvas');
+  const ctx = offScreenCanvas.getContext('2d');
+  const { shipHeight, shipWidth } = shipSize.value;
+
+  offScreenCanvas.width = shipWidth;
+  offScreenCanvas.height = shipHeight + (props.ship!.firingThruster ? shipHeight : 0);
+
+  if (props.ship!.firingThruster && fireImage.complete) {
+    ctx!.save();
+    ctx!.translate(shipWidth / 2, shipHeight + shipHeight / 2); 
+    ctx!.rotate(Math.PI); 
+    ctx!.drawImage(fireImage, -shipWidth / 2, -shipHeight / 2, shipWidth, shipHeight);
+    ctx!.restore();
+  }
+
+  if (shipImage.complete) {
+    ctx!.drawImage(shipImage, 0, 0, shipWidth, shipHeight); 
+  }
+
+  return ctx;
+});
+
 function draw() {
   const canvas = myCanvas.value;
   const ctx = canvas?.getContext('2d');
@@ -134,15 +161,14 @@ function draw() {
       drawOtherObjects(ctx, props.otherObjects!, scaleFactor.value);
     }
 
-    if (shipImage.complete) { 
-      const { shipHeight, shipWidth } = shipSize.value;
-
+    if (shipAndThrusterCtx.value) {
+      ctx.save();
       ctx.translate(canvas!.width / 2, canvas!.height / 2);
-      ctx.rotate(props.ship!.rotationAngle); 
-      ctx.drawImage(shipImage, -shipWidth / 2, -shipHeight / 2, shipWidth, shipHeight); 
-      ctx.rotate(-props.ship!.rotationAngle); 
-      ctx.translate(-canvas!.width / 2, -canvas!.height / 2);
+      ctx.rotate(props.ship!.rotationAngle);
+      ctx.drawImage(shipAndThrusterCtx.value.canvas, -shipSize.value.shipWidth / 2, -shipSize.value.shipHeight / 2);
+      ctx.restore();
     }
+
     ctx.save();
     ctx.drawImage(scaleBarCanvas.value, 0, canvas!.height - scaleBarCanvas.value.height);
     ctx.restore();

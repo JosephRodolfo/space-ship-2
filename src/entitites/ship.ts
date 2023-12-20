@@ -6,6 +6,7 @@ export class Ship {
     mass: number;
     radius: number;
     acceleration: Vector2D;
+    firingThruster: boolean;
     private _rotationAngle?: number; 
     constructor(name: string, mass: number, position: Vector2D, velocity: Vector2D, radius: number) {
             
@@ -16,6 +17,7 @@ export class Ship {
         this.velocity = velocity; 
         this.acceleration = { x: 0, y: 0 };
         this._rotationAngle = 0;
+        this.firingThruster = false;
     }
 
     // applyThrust({ x = 0, y = 0 }: Vector2D) {

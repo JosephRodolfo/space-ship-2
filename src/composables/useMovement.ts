@@ -44,6 +44,7 @@ export function useMovement(
 
   const startThrust = (direction: "up" | "down" | "left" | "right") => {
     if (direction === "up" || direction === "down") {
+      ship.firingThruster = true;
       if (thrustIntervalY !== null) {
         clearInterval(thrustIntervalY);
       }
@@ -81,6 +82,7 @@ export function useMovement(
       (keysPressed.has("a") && keysPressed.has("d"))
     ) {
       stopThrust();
+      ship.firingThruster = false;
       ship.acceleration = { x: 0, y: 0 };
       startPositionUpdate();
     } else {
