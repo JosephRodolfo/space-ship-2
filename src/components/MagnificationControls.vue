@@ -1,6 +1,6 @@
 <template>
   <div class="magnification-controls">
-    <input type="range" :min="minValue" :max="maxValue" :step="stepValue" v-model="magnification" @input="emitInput" />
+    <input type="range" :min="magnificationOpts.minValue" :max="magnificationOpts.maxValue" :step="magnificationOpts.stepValue" v-model="magnification" @input="emitInput" />
     <span>{{ roundedMagnification.toFixed(1) }}</span>
   </div>
 </template>
@@ -9,25 +9,14 @@
 import { ref, defineEmits, computed } from 'vue';
 
 const props = defineProps({
-  defaultMagnification: {
-    default: 1,
-    type: Number,
+  magnificationOpts: {
+  default: () => {},
+    type: Object,
   },
-  minValue: {
-    default: 1,
-    type: Number,
-  },
-  maxValue: {
-    default: 1000000,
-    type: Number,
-  },
-  stepValue: {
-    default: 0.1,
-    type: Number,
-  },
+
 });
 
-const magnification = ref(props.defaultMagnification);
+const magnification = ref(props.magnificationOpts.defaultMagnification);
 const emit = defineEmits(['input']);
 
 const emitInput = () => {

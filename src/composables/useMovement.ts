@@ -1,4 +1,4 @@
-import { computed, onUnmounted, ref } from "vue";
+import { Ref, computed, onUnmounted, ref } from "vue";
 import { Ship } from "../entitites/ship";
 import { Physics } from "../entitites/physics";
 const ROTATION_INCREMENT = 1 * (Math.PI / 180);
@@ -7,7 +7,8 @@ const physics: Physics = new Physics();
 export function useMovement(
   ship: Ship,
   keysPressed: Set<string>,
-  otherObjects: Ship[]
+  otherObjects: Ship[],
+  speedRef: Ref<number>
 ) {
   const thrustIncrement = 0.000001;
   const maxThrust = 0.1;
@@ -123,9 +124,8 @@ export function useMovement(
         1
       );
     });
-
-    ship.updatePhysics(1);
-    ship.updatePosition(1);
+    ship.updatePhysics(speedRef.value);
+    ship.updatePosition(speedRef.value);
     setTimeout(() => {
       frameRef.value = requestAnimationFrame(updateLoop);
     });

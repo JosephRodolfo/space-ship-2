@@ -98,8 +98,8 @@ function draw() {
     }
 
     if (shipImage.complete) { 
-      const shipWidth = shipImage.width * scaleFactor * .15 + 10;
-      const shipHeight = shipImage.height * scaleFactor * .15 + 10; 
+      const shipWidth = shipImage.width * scaleFactor * .15 + 15;
+      const shipHeight = shipImage.height * scaleFactor * .15 + 15; 
 
       ctx.translate(canvas!.width / 2, canvas!.height / 2);
       ctx.rotate(props.ship!.rotationAngle); 

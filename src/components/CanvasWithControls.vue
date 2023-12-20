@@ -5,7 +5,7 @@
         Hide other: {{ !hideOtherObjects }}
       </button>
       <MagnificationControls
-        :initialMagnificatoin="Number(defaultMagnification)"
+        :magnificationOpts="magnificationOpts"
         @input="handleMagnificationChange"
       ></MagnificationControls>
     </div>
@@ -36,12 +36,13 @@ const props = defineProps({
     default: () => [],
     type: Array as () => Ship[],
   },
-  defaultMagnification: {
-    default: 1,
-    type: Number,
+  magnificationOpts: {
+  default: () => {},
+    type: Object,
   },
+
 });
-const magnification = ref(props.defaultMagnification);
+const magnification = ref(props.magnificationOpts.defaultMagnification);
 const hideOtherObjects = ref(true);
 
 function handleMagnificationChange(val: number) {
