@@ -14,7 +14,7 @@
         stepValue: 1,
         minValue: 1,
         maxValue: 10000,
-        defaultMagnification: 1,
+        defaultMagnification: 6000,
 
       }" :ship="ship"  :other-objects="[otherObject]" :background="true"></CanvasWithControls>
       <CanvasWithControls :magnificationOpts="{
@@ -23,12 +23,12 @@
         maxValue: 1000000,
         defaultMagnification: 407143,
       }"
-      :ship="ship" :other-objects="[otherObject]" :background="false" :canvas-size="{ x: 250, y: 250 }"></CanvasWithControls>
+      :ship="ship" :other-objects="[otherObject]" :background="false" :canvas-size="canvasSize"></CanvasWithControls>
   </div>
   </template>
   
   <script setup lang="ts">
-  import { onMounted, onUnmounted, ref, watchEffect } from 'vue';
+  import { onMounted, onUnmounted, ref, watchEffect, computed } from 'vue';
   import { useKeyPress } from '../composables/useKeyPress';
   import { useMovement } from '../composables/useMovement';
   import { Ship } from '../entitites/ship';
@@ -46,7 +46,11 @@
   const otherObject = ref(new Ship('otherobj', earthMass, { x: 0, y: distanceFromCenterOfEarth }, { x: 0, y: 0 }, earthRadius));
   const { updateShipMovement } = useMovement(ship.value, keysPressed, [otherObject.value], speed);
 
-  
+  const canvasSize = computed(() => ({
+  x: 250, 
+  y: 250
+}));
+
   onMounted(() => {
     window.addEventListener('keydown', onKeydown);
     window.addEventListener('keyup', onKeyup);

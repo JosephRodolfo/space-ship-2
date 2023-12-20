@@ -31,8 +31,11 @@ import { Ship } from "../entitites/ship";
 const props = defineProps({
   ship: Object as () => Ship,
   background: Boolean,
-  canvasSize: Object,
-  otherObjects: {
+  canvasSize: {
+    default: { x: 500, y: 500 },
+    type: Object,
+  },
+    otherObjects: {
     default: () => [],
     type: Array as () => Ship[],
   },

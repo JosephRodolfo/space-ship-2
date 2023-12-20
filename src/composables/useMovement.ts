@@ -10,8 +10,8 @@ export function useMovement(
   otherObjects: Ship[],
   speedRef: Ref<number>
 ) {
-  const thrustIncrement = 0.000001;
-  const maxThrust = 0.1;
+  const thrustIncrement = 0.000001 * 1000000000000;
+  const maxThrust = Number.POSITIVE_INFINITY;
   let currentThrustY = 0;
   let currentThrustX = 0;
   let thrustIntervalY: number | null = null;
@@ -33,12 +33,12 @@ export function useMovement(
 
       const x = currentThrustX * Math.cos(ship.rotationAngle - Math.PI / 2);
       const y = currentThrustY * Math.sin(ship.rotationAngle - Math.PI / 2);
-      ship.applyThrust({ x, y });
+      return { x, y };
     } else {
       currentThrustX = Math.min(currentThrustX + thrustIncrement, maxThrust);
       const thrustValue =
         direction === "left" ? -currentThrustX : currentThrustX;
-      ship.applyThrust({ x: thrustValue, y: 0 });
+      ship.applyThrust({ x: thrustValue, y: 0 }, 1);
     }
   };
 
@@ -103,8 +103,21 @@ export function useMovement(
 
   const frameRef = ref<number>();
   const updateLoop = () => {
-    if (keysPressed.has("w")) applyThrust("up");
-    if (keysPressed.has("s")) applyThrust("down");
+    const totalForce = { x: 0, y: 0 };
+    ship.acceleration = { x: 0, y: 0 };
+
+    if (keysPressed.has("w")) {
+      
+      const thrusterForce = applyThrust("up");
+      totalForce.x += thrusterForce!.x;
+      totalForce.y +=thrusterForce!.y;
+    }
+    if (keysPressed.has("s"))  {
+      const thrusterForce = applyThrust("down");
+      totalForce.x += thrusterForce!.x;
+      totalForce.y +=thrusterForce!.y;
+
+    }
     // if (keysPressed.has('a')) applyThrust('left');
     // if (keysPressed.has('d')) applyThrust('right');
     if (keysPressed.has("a")) {
@@ -113,17 +126,17 @@ export function useMovement(
     if (keysPressed.has("d")) {
       ship.addRotation(ROTATION_INCREMENT);
     }
-    ship.acceleration = { x: 0, y: 0 };
+
     otherObjects.forEach((otherShip) => {
       const gravitationalForce = physics.calculateGravitationalForce(
         ship,
         otherShip
       );
-      ship.applyForce(
-        { x: gravitationalForce.x!, y: gravitationalForce.y! },
-        1
-      );
+      totalForce.x += gravitationalForce.x!;
+      totalForce.y += gravitationalForce.y!;
     });
+
+    ship.applyThrust(totalForce, 1);
     ship.updatePhysics(speedRef.value);
     ship.updatePosition(speedRef.value);
     setTimeout(() => {

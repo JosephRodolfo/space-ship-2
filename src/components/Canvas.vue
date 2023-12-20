@@ -5,8 +5,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue';
-import { createStarField } from '../helpers/createBackground';
+import { ref, onMounted, onUnmounted, computed } from 'vue';
+import { generateStarPositions, renderStarField } from '../helpers/createBackground';
 import { Ship } from '../entitites/ship';
 import { Vector2D } from '../interfaces';
 import shipSvg from '../assets/gray-ship.svg';
@@ -43,6 +43,7 @@ const backgroundOffset = ref({ x: 0, y: 0 });
 const starBackgroundSize = 1000;
 const shipImage = new Image();
 shipImage.src = shipSvg;
+const stars = ref<Vector2D[]>([])
 
 function updateBackgroundPosition(velocity: Vector2D, offset: Vector2D): Vector2D {
   const movementScaleFactor = .00001; 
@@ -60,8 +61,48 @@ function updateBackgroundPosition(velocity: Vector2D, offset: Vector2D): Vector2
 
 
 let animationFrameId: number;
-const starBackgroundCtx = createStarField(starBackgroundSize, starBackgroundSize, props.canvasSize.x);
+// const starBackgroundCtx = createStarField(starBackgroundSize, starBackgroundSize, props.canvasSize.x);
 
+const starBackgroundCtx = computed(() => {
+  return renderStarField(props.canvasSize.x, props.canvasSize.y, stars.value, props.magnification,)
+})
+const scaleFactor = computed(() => {
+  return 1 / Number(props.magnification);
+})
+
+const scaleBarCanvas = computed(() => {
+  const offScreenCanvas = document.createElement('canvas');
+  const ctx = offScreenCanvas.getContext('2d');
+  offScreenCanvas.width = props.canvasSize.x; // Assuming canvasSize is a ref or reactive object
+  offScreenCanvas.height = 30; // Height enough to fit scale bar
+
+  const worldScaleBarLength = 100;
+  const scaleFactor = 1 / Number(props.magnification);
+  const canvasScaleBarLength = worldScaleBarLength * scaleFactor;
+
+  const scaleBarX = 10;
+  const scaleBarY = offScreenCanvas.height - 20;
+  const scaleBarHeight = 10;
+  ctx!.fillStyle = 'white';
+  ctx!.fillRect(scaleBarX, scaleBarY, canvasScaleBarLength, scaleBarHeight);
+  ctx!.font = '14px Arial';
+  ctx!.fillText(`${worldScaleBarLength} units`, scaleBarX + canvasScaleBarLength + 5, scaleBarY + scaleBarHeight / 2 + 5);
+
+  return offScreenCanvas;
+});
+
+
+const shipSize = computed(() => {
+  const logBase = 2500; 
+
+const logScaleFactor = 1 / (Math.log(props.magnification + logBase) / Math.log(logBase));
+
+const shipWidthMultiplier = 0.2;
+const shipHeightMultiplier = 0.2;
+const shipWidth = shipImage.width * logScaleFactor * shipWidthMultiplier;
+const shipHeight = shipImage.height * logScaleFactor * shipHeightMultiplier;
+return { shipHeight, shipWidth };
+})
 function draw() {
   const canvas = myCanvas.value;
   const ctx = canvas?.getContext('2d');
@@ -69,17 +110,13 @@ function draw() {
   if (ctx && starBackgroundCtx) {
     ctx.clearRect(0, 0, canvas!.width, canvas!.height);
 
-    const scaleFactor = 1 / Number(props.magnification); 
-
-
     if (props.background) {
-
       const { x: bgX, y: bgY } = updateBackgroundPosition(props.ship?.velocity!, backgroundOffset.value);
       backgroundOffset.value.x = bgX!;
       backgroundOffset.value.y = bgY!;
 
-      const tileWidth = starBackgroundCtx.canvas.width;
-      const tileHeight = starBackgroundCtx.canvas.height;
+      const tileWidth = starBackgroundCtx.value!.canvas.width;
+      const tileHeight = starBackgroundCtx.value!.canvas.height;
       const adjustedTileWidth = tileWidth;
       const adjustedTileHeight = tileHeight;
       const startX = -(bgX! % adjustedTileWidth);
@@ -87,19 +124,18 @@ function draw() {
 
       for (let x = startX - adjustedTileWidth; x < canvas!.width / Number(props.magnification) + adjustedTileWidth; x += adjustedTileWidth) {
         for (let y = startY - adjustedTileHeight; y < canvas!.height / Number(props.magnification) + adjustedTileHeight; y += adjustedTileHeight) {
-          ctx.drawImage(starBackgroundCtx.canvas, x, y, adjustedTileWidth, adjustedTileHeight);
+          ctx.drawImage(starBackgroundCtx.value!.canvas, x, y, adjustedTileWidth, adjustedTileHeight);
         }
       }
 
       // const adjustedRadius = radius * props.magnification;
     }
     if (props.drawOtherObjects) {
-      drawOtherObjects(ctx, props.otherObjects!, scaleFactor);
+      drawOtherObjects(ctx, props.otherObjects!, scaleFactor.value);
     }
 
     if (shipImage.complete) { 
-      const shipWidth = shipImage.width * scaleFactor * .15 + 15;
-      const shipHeight = shipImage.height * scaleFactor * .15 + 15; 
+      const { shipHeight, shipWidth } = shipSize.value;
 
       ctx.translate(canvas!.width / 2, canvas!.height / 2);
       ctx.rotate(props.ship!.rotationAngle); 
@@ -108,19 +144,7 @@ function draw() {
       ctx.translate(-canvas!.width / 2, -canvas!.height / 2);
     }
     ctx.save();
-    const worldScaleBarLength = 100;
-    const canvasScaleBarLength = worldScaleBarLength * scaleFactor; 
-
-    const scaleBarX = 10;
-    const scaleBarY = canvas!.height - 20;
-    const scaleBarHeight = 10; 
-
-    ctx.fillStyle = 'white';
-    ctx.fillRect(scaleBarX, scaleBarY, canvasScaleBarLength, scaleBarHeight);
-
-    ctx.font = '14px Arial';
-    ctx.fillText(`${worldScaleBarLength} units`, scaleBarX + canvasScaleBarLength + 5, scaleBarY + scaleBarHeight / 2 + 5);
-
+    ctx.drawImage(scaleBarCanvas.value, 0, canvas!.height - scaleBarCanvas.value.height);
     ctx.restore();
   }
 
@@ -145,12 +169,10 @@ function drawOtherObjects(ctx: CanvasRenderingContext2D, otherObjects: Array<Shi
   });
 }
 
-
-
-
-
 onMounted(() => {
+  stars.value = generateStarPositions(starBackgroundSize, props.canvasSize.y, props.canvasSize.x)
   animationFrameId = requestAnimationFrame(draw);
+
 });
 
 onUnmounted(() => {

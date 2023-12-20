@@ -18,22 +18,20 @@ export class Ship {
         this._rotationAngle = 0;
     }
 
-    applyThrust({ x = 0, y = 0 }: Vector2D) {
-        this.acceleration.x! += x || 0;
-        this.acceleration.y! += y || 0;
-    }
+    // applyThrust({ x = 0, y = 0 }: Vector2D) {
+    //     this.acceleration.x! += x || 0;
+    //     this.acceleration.y! += y || 0;
+    // }
 
-    applyForce(force: Vector2D, timeStep: number) {
-        // Scale the force based on the time step
+    applyThrust(force: Vector2D, timeStep: number) {
         const scaledForce = {
             x: force.x! * timeStep,
             y: force.y! * timeStep
         };
     
-        // Update acceleration
-        this.acceleration.x! += scaledForce.x / this.mass;
-        this.acceleration.y! += scaledForce.y / this.mass;
-    }
+        this.acceleration.x! += (scaledForce.x / this.mass) || 0;
+        this.acceleration.y! += (scaledForce.y / this.mass) || 0;
+        }
     updatePhysics(timeStep: number) {
         this.velocity.x! += this.acceleration.x! * timeStep;
         this.velocity.y! += this.acceleration.y! * timeStep;
