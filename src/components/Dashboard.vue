@@ -32,6 +32,7 @@
   import { useKeyPress } from '../composables/useKeyPress';
   import { useMovement } from '../composables/useMovement';
   import { Ship } from '../entitites/ship';
+  import {Planet} from '../entitites/planet';
   import CanvasWithControls from './CanvasWithControls.vue';
   
   const { keysPressed, onKeydown, onKeyup } = useKeyPress();
@@ -43,7 +44,7 @@
   const orbitalVelocity = Math.sqrt(G * earthMass / distanceFromCenterOfEarth);
   const ship = ref(new Ship('ship', massStation, { x: 0, y: 0 }, { x:  -orbitalVelocity, y: 0 }, 100));
   const earthRadius = 6_371_000;
-  const otherObject = ref(new Ship('otherobj', earthMass, { x: 0, y: distanceFromCenterOfEarth }, { x: 0, y: 0 }, earthRadius));
+  const otherObject = ref(new Planet({ x: 0, y: distanceFromCenterOfEarth }, earthMass, { x: 0, y: 0 }, earthRadius, 'earth'));
   const { updateShipMovement } = useMovement(ship.value, keysPressed, [otherObject.value], speed);
 
   const canvasSize = computed(() => ({

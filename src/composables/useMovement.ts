@@ -1,13 +1,14 @@
 import { Ref, computed, onUnmounted, ref } from "vue";
 import { Ship } from "../entitites/ship";
 import { Physics } from "../entitites/physics";
+import { Planet } from "../entitites/planet";
 const ROTATION_INCREMENT = 1 * (Math.PI / 180);
 const physics: Physics = new Physics();
 
 export function useMovement(
   ship: Ship,
   keysPressed: Set<string>,
-  otherObjects: Ship[],
+  otherObjects: Planet[],
   speedRef: Ref<number>
 ) {
   const thrustIncrement = 0.000001 * 1000000000000;
@@ -127,7 +128,7 @@ export function useMovement(
     const { x, y } = physics.sumForces(otherObjects, ship);
     totalForce.x += x;
     totalForce.y += y;
-    
+
     physics.advanceTimeStep({
       ship,
       totalForce,

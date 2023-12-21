@@ -1,10 +1,11 @@
 import { Vector2D } from "../interfaces";
 import { Ship } from "./ship";
+import { Planet } from "./planet";
 const G = 6.674 * Math.pow(10, -11);
 export class Physics {
   constructor() {}
 
-  calculateGravitationalForce(ship1: Ship, ship2: Ship): Vector2D {
+  calculateGravitationalForce(ship1: Ship, ship2: Planet): Vector2D {
     const { distance, distanceX, distanceY } = this.calculateDistance(
       ship1.position,
       ship2.position
@@ -111,9 +112,9 @@ export class Physics {
       newVelocity,
     });
   }
-  sumForces(otherBodies: Ship[] = [], ship: Ship) {
+  sumForces(otherBodies: Planet[] = [], ship: Ship) {
     return otherBodies.reduce(
-      (accumulatedForce: Vector2D, otherShip: Ship) => {
+      (accumulatedForce: Vector2D, otherShip: Planet) => {
         const gravitationalForce = this.calculateGravitationalForce(
           ship,
           otherShip
