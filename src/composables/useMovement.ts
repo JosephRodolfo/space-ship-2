@@ -34,12 +34,7 @@ export function useMovement(
       const x = currentThrustX * Math.cos(ship.rotationAngle - Math.PI / 2);
       const y = currentThrustY * Math.sin(ship.rotationAngle - Math.PI / 2);
       return { x, y };
-    } else {
-      currentThrustX = Math.min(currentThrustX + thrustIncrement, maxThrust);
-      const thrustValue =
-        direction === "left" ? -currentThrustX : currentThrustX;
-      ship.applyThrust({ x: thrustValue, y: 0 }, 1);
-    }
+    } 
   };
 
   const startThrust = (direction: "up" | "down" | "left" | "right") => {
@@ -129,33 +124,20 @@ export function useMovement(
       ship.addRotation(ROTATION_INCREMENT);
     }
 
-    otherObjects.forEach((otherShip) => {
-      const gravitationalForce = physics.calculateGravitationalForce(
-        ship,
-        otherShip
-      );
-      totalForce.x += gravitationalForce.x!;
-      totalForce.y += gravitationalForce.y!;
-    });
-    ship.advanceTimeStep(totalForce, speedRef.value);
-    // const newAcceleration = physics.calculateAcceleration({
-    //   force: totalForce,
-    //   mass: ship.mass
-    // })
-    // ship.updateAcceleration(newAcceleration);
-    // // ship.applyThrust(totalForce, 1);
-    // const newVelocity = physics.calculateVelocity({
-    //   acceleration: newAcceleration,
-    //   initialVelocity: ship.velocity,
-    //   timeStep: speedRef.value
-    // })
-    // ship.updateVelocity(newVelocity);
-    // const newPosition = physics.calculatePosition({
-    //   position: ship.position,
-    //   velocity: ship.velocity,
-    //   timeStep: speedRef.value,
-    // })
-    // ship.updatePositionNew(newPosition);
+    const { x, y } = physics.sumForces(otherObjects, ship);
+    totalForce.x += x;
+    totalForce.y += y;
+    
+    physics.advanceTimeStep({
+      ship,
+      totalForce,
+      timeStep: speedRef.value,
+      callback: ({ newAcceleration, newVelocity, newPosition}) => {
+      ship.updateAcceleration(newAcceleration);
+      ship.updateVelocity(newVelocity);
+      ship.updatePositionNew(newPosition);
+      }
+    })
     setTimeout(() => {
       frameRef.value = requestAnimationFrame(updateLoop);
     });

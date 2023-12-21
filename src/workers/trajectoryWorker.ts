@@ -1,22 +1,29 @@
+import { Physics } from "../entitites/physics";
+// import { Ship } from "../entitites/ship";
+// const physics = new CelestialBody();
+
+// const celestial = new CelestialBody();
 // trajectoryWorker.ts
 self.addEventListener('message', (event) => {
-    console.log('jdfklafjds');
-    const data = event.data;
-    const result = calculateTrajectory();
+
+    console.log(event.data);
+    // console.log(physics);
+    // console.log(Physics)
+    const physics = new Physics();
+    // console.log(physics.calculateTrajectory());
+
+    // const { position, acceleration, velocity, otherBodies, window, mass } = event.data;
+    // const result = physics.calculateTrajectory({
+    //     position,
+    //     acceleration,
+    //     velocity,
+    //     mass,
+    // } as Ship,
+    // otherBodies,
+    // window)
+    const result = null;
+    // console.log(result);
     postMessage(result);
   });
   
-  function calculateTrajectory() {
-    // Example calculation based on provided data
-    // This should be replaced with your actual trajectory calculation logic
-    // const trajectoryPoints: Array<any> = [];
-    // for (let i = 0; i < 100; i++) {
-    //   trajectoryPoints.push({
-    //     x: data.position.x + data.velocity.x * i,
-    //     y: data.position.y + data.velocity.y * i
-    //     // Include other necessary calculations for trajectory
-    //   });
-    // }
-    return 'trajectoryPoints';
-  }
   

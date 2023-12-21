@@ -51,23 +51,36 @@
   y: 250
 }));
 
-watch(() => ship.value.firingThruster, (newValue, oldValue) => {
+watch(() => ship.value.firingThruster, () => {
   throttleUpdateTrajectory();
+  const position = { ...ship.value.position };
+  const velocity = { ...ship.value.velocity };
+  const acceleration = { ...ship.value.acceleration };
+  const otherMapped = [otherObject.value].map(({ mass, position, acceleration, velocity}) => {
+    return {
+      mass, 
+      position: { ...position },
+      acceleration: { ...acceleration },
+      velocity: { ...velocity },
+    }
+  })
   worker.postMessage({
-    position: ship.value.position.x,
-    velocity: ship.value.velocity.y,
-    // Add any other relevant data
-  });
+    position,
+    velocity,
+    acceleration,
+    otherBodies: otherMapped,
+    window: [0, 1000],
+  },
+  );
 });
 
 let worker: Worker;
   onMounted(() => {
-    worker = new Worker('src/workers/trajectoryWorker.ts');
-    window.addEventListener('keydown', onKeydown);
+   worker = new Worker(new URL('../workers/trajectoryWorker.ts', import.meta.url), { type: 'module' });
+        window.addEventListener('keydown', onKeydown);
     window.addEventListener('keyup', onKeyup);
     worker.onmessage = (event) => {
-  const trajectoryPoints = event.data;
-  console.log(trajectoryPoints);
+  // console.log(trajectoryPoints);
   // Handle the trajectory points (e.g., updating a canvas or state)
 };
 worker.onerror = (error) => {

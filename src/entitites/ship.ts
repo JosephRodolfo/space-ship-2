@@ -1,6 +1,4 @@
 import { Vector2D } from "../interfaces";
-import { Physics } from "./physics";
-const physics = new Physics();
 export class Ship {
     name: string;
     position: Vector2D;
@@ -53,43 +51,19 @@ export class Ship {
         this.velocity.x! += this.acceleration.x! * timeStep;
         this.velocity.y! += this.acceleration.y! * timeStep;
     }
-    advanceTimeStep(totalForce: Vector2D, timeStep: number) {
-        const newAcceleration = physics.calculateAcceleration({
-            force: totalForce,
-            mass: this.mass
-          })
-          this.updateAcceleration(newAcceleration);
-          const newVelocity = physics.calculateVelocity({
-            acceleration: newAcceleration,
-            initialVelocity: this.velocity,
-            timeStep,
-          })
-          this.updateVelocity(newVelocity);
-          const newPosition = physics.calculatePosition({
-            position: this.position,
-            velocity: this.velocity,
-            timeStep: timeStep,
-          })
-          this.updatePositionNew(newPosition);     
-    }
+
     updatePosition(timeStep: number) {
         this.position.x! += this.velocity.x! * timeStep;
         this.position.y! += this.velocity.y! * timeStep;
     }
     get rotationAngle(): number {
         if (this.acceleration.x === 0 && this.acceleration.y === 0) {
-            // No acceleration, return the current angle
             return this._rotationAngle!;
         }
-    
-        // Update and return the new rotation angle based on acceleration
-        // Adjust by 90 degrees (π/2 radians)
-        // this._rotationAngle = Math.atan2(this.acceleration.y!, this.acceleration.x!) + Math.PI / 2;
         return this._rotationAngle!;
     }
     addRotation(delta: number) {
         this._rotationAngle! += delta;
-        // Normalize the rotation angle to keep it within the range of 0 to 2π
         this._rotationAngle! %= Math.PI * 2;
     }
 
