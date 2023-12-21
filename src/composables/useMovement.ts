@@ -137,10 +137,25 @@ export function useMovement(
       totalForce.x += gravitationalForce.x!;
       totalForce.y += gravitationalForce.y!;
     });
-
-    ship.applyThrust(totalForce, 1);
-    ship.updatePhysics(speedRef.value);
-    ship.updatePosition(speedRef.value);
+    ship.advanceTimeStep(totalForce, speedRef.value);
+    // const newAcceleration = physics.calculateAcceleration({
+    //   force: totalForce,
+    //   mass: ship.mass
+    // })
+    // ship.updateAcceleration(newAcceleration);
+    // // ship.applyThrust(totalForce, 1);
+    // const newVelocity = physics.calculateVelocity({
+    //   acceleration: newAcceleration,
+    //   initialVelocity: ship.velocity,
+    //   timeStep: speedRef.value
+    // })
+    // ship.updateVelocity(newVelocity);
+    // const newPosition = physics.calculatePosition({
+    //   position: ship.position,
+    //   velocity: ship.velocity,
+    //   timeStep: speedRef.value,
+    // })
+    // ship.updatePositionNew(newPosition);
     setTimeout(() => {
       frameRef.value = requestAnimationFrame(updateLoop);
     });

@@ -1,4 +1,6 @@
 import { Vector2D } from "../interfaces";
+import { Physics } from "./physics";
+const physics = new Physics();
 export class Ship {
     name: string;
     position: Vector2D;
@@ -33,10 +35,42 @@ export class Ship {
     
         this.acceleration.x! += (scaledForce.x / this.mass) || 0;
         this.acceleration.y! += (scaledForce.y / this.mass) || 0;
-        }
+        }    
+    updateVelocity(velocity: Vector2D) {
+        
+        this.velocity.x = velocity.x;
+        this.velocity.y = velocity.y
+    }    
+    updateAcceleration(acceleration: Vector2D) {
+        this.acceleration.x = acceleration.x;
+        this.acceleration.y = acceleration.y
+    }
+    updatePositionNew(position: Vector2D) {
+        this.position.x = position.x;
+        this.position.y = position.y;
+    }
     updatePhysics(timeStep: number) {
         this.velocity.x! += this.acceleration.x! * timeStep;
         this.velocity.y! += this.acceleration.y! * timeStep;
+    }
+    advanceTimeStep(totalForce: Vector2D, timeStep: number) {
+        const newAcceleration = physics.calculateAcceleration({
+            force: totalForce,
+            mass: this.mass
+          })
+          this.updateAcceleration(newAcceleration);
+          const newVelocity = physics.calculateVelocity({
+            acceleration: newAcceleration,
+            initialVelocity: this.velocity,
+            timeStep,
+          })
+          this.updateVelocity(newVelocity);
+          const newPosition = physics.calculatePosition({
+            position: this.position,
+            velocity: this.velocity,
+            timeStep: timeStep,
+          })
+          this.updatePositionNew(newPosition);     
     }
     updatePosition(timeStep: number) {
         this.position.x! += this.velocity.x! * timeStep;

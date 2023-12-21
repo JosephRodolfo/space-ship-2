@@ -28,7 +28,7 @@
   </template>
   
   <script setup lang="ts">
-  import { onMounted, onUnmounted, ref, watchEffect, computed } from 'vue';
+  import { onMounted, onUnmounted, ref, watchEffect, computed, watch } from 'vue';
   import { useKeyPress } from '../composables/useKeyPress';
   import { useMovement } from '../composables/useMovement';
   import { Ship } from '../entitites/ship';
@@ -51,12 +51,32 @@
   y: 250
 }));
 
+watch(() => ship.value.firingThruster, (newValue, oldValue) => {
+  throttleUpdateTrajectory();
+  worker.postMessage({
+    position: ship.value.position.x,
+    velocity: ship.value.velocity.y,
+    // Add any other relevant data
+  });
+});
+
+let worker: Worker;
   onMounted(() => {
+    worker = new Worker('src/workers/trajectoryWorker.ts');
     window.addEventListener('keydown', onKeydown);
     window.addEventListener('keyup', onKeyup);
+    worker.onmessage = (event) => {
+  const trajectoryPoints = event.data;
+  console.log(trajectoryPoints);
+  // Handle the trajectory points (e.g., updating a canvas or state)
+};
+worker.onerror = (error) => {
+  console.error('Worker error:', error);
+};
   });
   
   onUnmounted(() => {
+    worker.terminate();
     window.removeEventListener('keydown', onKeydown);
     window.removeEventListener('keyup', onKeyup);
   });
@@ -64,6 +84,9 @@
     updateShipMovement.value;
   
   });
+  function throttleUpdateTrajectory() {
+
+}
   </script>
   <style>
   .canvas-container {
