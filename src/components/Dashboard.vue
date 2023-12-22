@@ -59,6 +59,7 @@ watch(() => ship.value.firingThruster, (newVal, oldVal) => {
   if (newVal !== false && oldVal !== true) {
     return;
   }
+  mainStore.setTrajectoryData([]);
   const position = { ...ship.value.position };
   const velocity = { ...ship.value.velocity };
   const acceleration = { ...ship.value.acceleration };
@@ -79,7 +80,7 @@ watch(() => ship.value.firingThruster, (newVal, oldVal) => {
     },
     timeStep: Number(speed.value),
     otherBodies: otherMapped,
-    window: [0, 1000],
+    window: [0, 999],
   },
   );
 });
@@ -90,8 +91,9 @@ let worker: Worker;
         window.addEventListener('keydown', onKeydown);
     window.addEventListener('keyup', onKeyup);
     worker.onmessage = (event) => {
-      mainStore.setTrajectoryData(event.data);
-    };
+  const { chunk } = event.data;
+  mainStore.setTrajectoryData([...mainStore.trajectoryData, ...chunk]);
+      };
 worker.onerror = (error) => {
   console.error('Worker error:', error);
 };
@@ -112,7 +114,6 @@ worker.onerror = (error) => {
     } else {
       speed.value = 1;
     }
-    console.log(speed);
     return null;
   }
   </script>

@@ -148,23 +148,27 @@ export class Physics {
     let currentShipState = { ...ship };
 
     for (let time = startTime; time <= endTime; time += timeStep) {
-
       this.advanceTimeStep({
         ship: currentShipState as Ship,
         thrustForce: { x: 0, y: 0 },
         otherBodies,
         timeStep,
         callback: ({ newPosition, newVelocity, newAcceleration }) => {
-            // if(time % 2 == 0) {
           trajectory.push(newPosition)
-            // }
           currentShipState.position = newPosition;
           currentShipState.velocity = newVelocity;
           currentShipState.acceleration = newAcceleration;
         },
       });
     }
-
-    return trajectory;
+    return {
+      trajectory,
+      finalShipState: {
+        acceleration: currentShipState.acceleration,
+        velocity: currentShipState.velocity,
+        position: trajectory[trajectory.length - 1],
+        mass: currentShipState.mass,
+      }
+    };
   }
 }
