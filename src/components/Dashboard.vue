@@ -29,13 +29,14 @@
   </template>
   
   <script setup lang="ts">
-  import { onMounted, onUnmounted, ref, watchEffect, computed, watch } from 'vue';
+  import { onMounted, onUnmounted, ref, computed, watch } from 'vue';
   import { useKeyPress } from '../composables/useKeyPress';
-  import { useMovement } from '../composables/useMovement';
   import { Ship } from '../entitites/ship';
-  import {Planet} from '../entitites/planet';
+  import { Planet } from '../entitites/planet';
+import { GameEngine } from '../entitites/GameEngine';
   import CanvasWithControls from './CanvasWithControls.vue';
   import { useMainStore } from '../store/store';
+import { Physics } from '../entitites/physics';
   
   const { keysPressed, onKeydown, onKeyup } = useKeyPress();
   const massStation = 420000;
@@ -47,8 +48,8 @@
   const ship = ref(new Ship('ship', massStation, { x: 0, y: 0 }, { x:  -orbitalVelocity, y: 0 }, 100));
   const earthRadius = 6_371_000;
   const otherObject = ref(new Planet({ x: 0, y: distanceFromCenterOfEarth }, earthMass, { x: 0, y: 0 }, earthRadius, 'earth'));
-  const { updateShipMovement } = useMovement(ship.value, keysPressed, [otherObject.value], speed);
   const mainStore = useMainStore();
+  const gameEngine = new GameEngine(ship.value, [otherObject.value], keysPressed, speed, new Physics());
   const canvasSize = computed(() => ({
   x: 250, 
   y: 250
@@ -80,13 +81,14 @@ watch(() => ship.value.firingThruster, (newVal, oldVal) => {
     },
     timeStep: Number(speed.value),
     otherBodies: otherMapped,
-    window: [0, 999],
+    window: [0, 3000],
   },
   );
 });
 
 let worker: Worker;
   onMounted(() => {
+    gameEngine.start();
    worker = new Worker(new URL('../workers/trajectoryWorker.ts', import.meta.url), { type: 'module' });
         window.addEventListener('keydown', onKeydown);
     window.addEventListener('keyup', onKeyup);
@@ -103,10 +105,7 @@ worker.onerror = (error) => {
     worker.terminate();
     window.removeEventListener('keydown', onKeydown);
     window.removeEventListener('keyup', onKeyup);
-  });
-  watchEffect(() => {
-    updateShipMovement.value;
-  
+    gameEngine.stop();
   });
   function handlePause() {
     if (speed.value) {
