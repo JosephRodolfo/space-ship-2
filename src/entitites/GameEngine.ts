@@ -13,7 +13,8 @@ export class GameEngine {
   thrustIntervalX: number | null;
   thrustIntervalY: number | null;
   positionInterval: number | null;
-  physics: Physics;
+    physics: Physics;
+    frameCount: number;
 
   constructor(
     ship: Ship,
@@ -30,7 +31,8 @@ export class GameEngine {
     this.thrustIntervalY = null;
     this.thrustIntervalX = null;
     this.positionInterval = null;
-    this.physics = physics;
+      this.physics = physics;
+      this.frameCount = 0;
   }
 
   start() {
@@ -59,6 +61,22 @@ export class GameEngine {
     if (this.keysPressed.has("d")) {
       this.ship.addRotation(1);
     }
+      this.frameCount++
+      if (this.frameCount % 100 === 0) {
+        const collision = this.otherObjects.reduce((prev, curr) => {
+            const res = this.physics.detectCollision(this.ship, curr);
+            if (res) {
+                return prev.concat(`${curr.name} `);
+            }
+            return prev;
+        }, '');
+        if (collision) {
+            alert(`collision detected with ${collision}`);
+            return;
+        }
+        this.frameCount = 0;
+      }
+    
 
     this.physics.advanceTimeStep({
       ship: this.ship,

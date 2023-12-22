@@ -12,7 +12,6 @@ self.addEventListener('message', (event) => {
   for (let start = window[0]; start < maxWindow; start += chunkSize + 1) {
     const end = Math.min(start + chunkSize, maxWindow);
     const chunkWindow: any = [start, end];
-    // console.log(chunkWindow)
     const { trajectory: trajectoryChunk, finalShipState } = physics.calculateTrajectory(
       currentShipState as Ship,
       otherBodies,

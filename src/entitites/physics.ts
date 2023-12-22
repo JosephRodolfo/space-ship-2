@@ -1,6 +1,7 @@
 import { Vector2D } from "../interfaces";
 import { Ship } from "./ship";
 import { Planet } from "./planet";
+import { CelestialBody } from "./celestialBody";
 const G = 6.674 * Math.pow(10, -11);
 export class Physics {
   constructor() {}
@@ -171,11 +172,14 @@ export class Physics {
       }
     };
   }
-  detectCollision(circle1: { x: number, y: number, radius: number}, circle2: { x: number, y: number, radius: number}) {
-    const dx = circle1.x - circle2.x;
-    const dy = circle1.y - circle2.y;
-    const distance = Math.sqrt(dx * dx + dy * dy);
-    if (distance < circle1.radius + circle2.radius) return true;
-    return false;
-}
+  detectCollision(circle1: CelestialBody, circle2: CelestialBody) {
+    const dx = circle1.position.x! - circle2.position.x!;
+    const dy = circle1.position.y! - circle2.position.y!;
+    const distanceSquared = dx * dx + dy * dy;
+    const radiusSumSquared = (circle1.radius + circle2.radius) * (circle1.radius + circle2.radius);
+    return distanceSquared < radiusSumSquared;
+  }
+  calculateOribitalVelocity(distance: number, mass: number) {
+    return Math.sqrt(G * mass / distance);
+  }
 }

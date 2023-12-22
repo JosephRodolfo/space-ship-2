@@ -1,7 +1,6 @@
 import { defineStore } from 'pinia';
 import { Vector2D } from '../interfaces';
 
-
 export const useMainStore = defineStore('main', {
   state: () => ({
     trajectoryData: [] as Vector2D[],
@@ -21,7 +20,6 @@ export const useMainStore = defineStore('main', {
     },
     setPause() {
       this.pause = !this.pause;
-      console.log(this.pause);
     }
     },
 });
