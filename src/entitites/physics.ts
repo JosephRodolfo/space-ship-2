@@ -76,21 +76,30 @@ export class Physics {
   }
   advanceTimeStep({
     ship,
-    totalForce,
+    otherBodies,
+    thrustForce,
     timeStep,
     callback,
   }: {
     ship: Ship;
-    totalForce: Vector2D;
-    timeStep: number;
+    otherBodies: Planet[]
+      thrustForce: Vector2D,
+      timeStep: number;
     callback: (result: {
       newPosition: Vector2D;
       newAcceleration: Vector2D;
       newVelocity: Vector2D;
     }) => void;
-  }) {
+    }) {
+    
+    const totalForces = this.sumForces(otherBodies, ship);
+
+    totalForces.x += thrustForce.x!;
+    totalForces.y += thrustForce.y!;
+
+    
     const newAcceleration = this.calculateAcceleration({
-      force: totalForce,
+      force: totalForces,
       mass: ship.mass,
     });
 
@@ -130,23 +139,25 @@ export class Physics {
 
   calculateTrajectory(
     ship: Ship,
-    otherBodies: Ship[],
-    window: [number, number]
+    otherBodies: Planet[],
+    window: [number, number],
+    timeStep: number,
   ) {
     const [startTime, endTime] = window;
-    const timeStep = 1;
     let trajectory: Vector2D[] = [];
-    let currentShipState = { ...ship }; // Clone the ship state to avoid mutating the original ship
+    let currentShipState = { ...ship };
 
     for (let time = startTime; time <= endTime; time += timeStep) {
-      const totalForce = this.sumForces(otherBodies, currentShipState as Ship);
 
       this.advanceTimeStep({
         ship: currentShipState as Ship,
-        totalForce,
+        thrustForce: { x: 0, y: 0 },
+        otherBodies,
         timeStep,
         callback: ({ newPosition, newVelocity, newAcceleration }) => {
-          trajectory.push(newPosition);
+            // if(time % 2 == 0) {
+          trajectory.push(newPosition)
+            // }
           currentShipState.position = newPosition;
           currentShipState.velocity = newVelocity;
           currentShipState.acceleration = newAcceleration;

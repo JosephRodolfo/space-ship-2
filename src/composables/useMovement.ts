@@ -19,13 +19,6 @@ export function useMovement(
   let thrustIntervalX: number | null = null;
   let positionInterval: number | null = null;
 
-  const startPositionUpdate = () => {
-    if (positionInterval === null) {
-      positionInterval = setInterval(() => {
-        ship.updatePosition(1);
-      }, 1000);
-    }
-  };
 
   const applyThrust = (direction: "up" | "down" | "left" | "right") => {
     if (direction === "up" || direction === "down") {
@@ -80,7 +73,6 @@ export function useMovement(
       stopThrust();
       ship.firingThruster = false;
       ship.acceleration = { x: 0, y: 0 };
-      startPositionUpdate();
     } else {
       if (positionInterval !== null) {
         clearInterval(positionInterval);
@@ -102,7 +94,6 @@ export function useMovement(
   const frameRef = ref<number>();
   const updateLoop = () => {
     const totalForce = { x: 0, y: 0 };
-    ship.acceleration = { x: 0, y: 0 };
 
     if (keysPressed.has("w")) {
       
@@ -125,13 +116,10 @@ export function useMovement(
       ship.addRotation(ROTATION_INCREMENT);
     }
 
-    const { x, y } = physics.sumForces(otherObjects, ship);
-    totalForce.x += x;
-    totalForce.y += y;
-
     physics.advanceTimeStep({
       ship,
-      totalForce,
+      otherBodies: otherObjects,
+      thrustForce: totalForce,
       timeStep: speedRef.value,
       callback: ({ newAcceleration, newVelocity, newPosition}) => {
       ship.updateAcceleration(newAcceleration);

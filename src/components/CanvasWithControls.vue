@@ -27,6 +27,7 @@ import { defineProps, ref } from "vue";
 import MagnificationControls from "./MagnificationControls.vue";
 import Canvas from "./Canvas.vue";
 import { Ship } from "../entitites/ship";
+import { Planet } from '../entitites/planet';
 
 const props = defineProps({
   ship: Object as () => Ship,
@@ -37,7 +38,7 @@ const props = defineProps({
   },
     otherObjects: {
     default: () => [],
-    type: Array as () => Ship[],
+    type: Array as () => Planet[],
   },
   magnificationOpts: {
   default: () => {},

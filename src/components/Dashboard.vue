@@ -6,6 +6,7 @@
     <div class="speed-controls">
     <input type="range" :min="1" :max="300" :step="1" v-model="speed" />
     <span>{{ speed }}</span>
+    <button @click="handlePause">Pause</button>
   </div>
     <!-- <div>{{ keysPressed }}</div> -->
     <p>Position: {{ ship.position.x!.toFixed(2) }}, {{ ship.position.y!.toFixed(2) }}</p>
@@ -34,6 +35,7 @@
   import { Ship } from '../entitites/ship';
   import {Planet} from '../entitites/planet';
   import CanvasWithControls from './CanvasWithControls.vue';
+  import { useMainStore } from '../store/store';
   
   const { keysPressed, onKeydown, onKeyup } = useKeyPress();
   const massStation = 420000;
@@ -46,14 +48,17 @@
   const earthRadius = 6_371_000;
   const otherObject = ref(new Planet({ x: 0, y: distanceFromCenterOfEarth }, earthMass, { x: 0, y: 0 }, earthRadius, 'earth'));
   const { updateShipMovement } = useMovement(ship.value, keysPressed, [otherObject.value], speed);
-
+  const mainStore = useMainStore();
   const canvasSize = computed(() => ({
   x: 250, 
   y: 250
-}));
+    }));
 
-watch(() => ship.value.firingThruster, () => {
-  throttleUpdateTrajectory();
+
+watch(() => ship.value.firingThruster, (newVal, oldVal) => {
+  if (newVal !== false && oldVal !== true) {
+    return;
+  }
   const position = { ...ship.value.position };
   const velocity = { ...ship.value.velocity };
   const acceleration = { ...ship.value.acceleration };
@@ -66,9 +71,13 @@ watch(() => ship.value.firingThruster, () => {
     }
   })
   worker.postMessage({
-    position,
-    velocity,
-    acceleration,
+    shipData: {
+      position,
+      velocity,
+      acceleration,
+      mass: ship.value.mass,
+    },
+    timeStep: Number(speed.value),
     otherBodies: otherMapped,
     window: [0, 1000],
   },
@@ -81,9 +90,8 @@ let worker: Worker;
         window.addEventListener('keydown', onKeydown);
     window.addEventListener('keyup', onKeyup);
     worker.onmessage = (event) => {
-  // console.log(trajectoryPoints);
-  // Handle the trajectory points (e.g., updating a canvas or state)
-};
+      mainStore.setTrajectoryData(event.data);
+    };
 worker.onerror = (error) => {
   console.error('Worker error:', error);
 };
@@ -98,9 +106,15 @@ worker.onerror = (error) => {
     updateShipMovement.value;
   
   });
-  function throttleUpdateTrajectory() {
-
-}
+  function handlePause() {
+    if (speed.value) {
+      speed.value = 0;
+    } else {
+      speed.value = 1;
+    }
+    console.log(speed);
+    return null;
+  }
   </script>
   <style>
   .canvas-container {

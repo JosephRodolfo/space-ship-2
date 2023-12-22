@@ -1,28 +1,21 @@
 import { Physics } from "../entitites/physics";
-// import { Ship } from "../entitites/ship";
-// const physics = new CelestialBody();
+import { Ship } from "../entitites/ship";
+const physics = new Physics();
 
-// const celestial = new CelestialBody();
-// trajectoryWorker.ts
 self.addEventListener('message', (event) => {
-
-    console.log(event.data);
-    // console.log(physics);
-    // console.log(Physics)
-    const physics = new Physics();
-    // console.log(physics.calculateTrajectory());
-
-    // const { position, acceleration, velocity, otherBodies, window, mass } = event.data;
-    // const result = physics.calculateTrajectory({
-    //     position,
-    //     acceleration,
-    //     velocity,
-    //     mass,
-    // } as Ship,
-    // otherBodies,
-    // window)
-    const result = null;
-    // console.log(result);
+    const { otherBodies, window, shipData, timeStep } = event.data;
+    const { acceleration, position, mass, velocity } = shipData
+    const result = physics.calculateTrajectory({
+        position,
+        acceleration,
+        velocity,
+        mass,
+    } as Ship,
+    otherBodies,
+        window,
+        timeStep,
+    )
+    // console.log(timeStep);
     postMessage(result);
   });
   
