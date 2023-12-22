@@ -6,6 +6,7 @@ import App from './App.vue';
 import './style.css';
 import { createRouter, createWebHistory } from 'vue-router';
 const routes = [
+    { path: '/', component: Dashboard },
     { path: '/dashboard', component: Dashboard },
     { path: '/credits', component: Credits }
   ];
