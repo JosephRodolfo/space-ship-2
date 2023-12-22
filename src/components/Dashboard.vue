@@ -85,7 +85,6 @@ watch(() => ship.value.firingThruster, (newVal, oldVal) => {
   },
   );
 });
-
 let worker: Worker;
   onMounted(() => {
     gameEngine.start();
@@ -108,12 +107,12 @@ worker.onerror = (error) => {
     gameEngine.stop();
   });
   function handlePause() {
-    if (speed.value) {
+    mainStore.setPause();
+    if (mainStore.pause) {
       speed.value = 0;
     } else {
       speed.value = 1;
     }
-    return null;
   }
   </script>
   <style>

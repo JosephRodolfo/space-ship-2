@@ -7,6 +7,7 @@ export const useMainStore = defineStore('main', {
     trajectoryData: [] as Vector2D[],
     loading: false,
     error: null,
+    pause: false,
   }),
   actions: {
     setTrajectoryData(data: Vector2D[]) {
@@ -18,5 +19,9 @@ export const useMainStore = defineStore('main', {
     setError(data: any) {
         this.error = data;
     },
+    setPause() {
+      this.pause = !this.pause;
+      console.log(this.pause);
+    }
     },
 });

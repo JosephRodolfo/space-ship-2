@@ -41,37 +41,6 @@ export class GameEngine {
       cancelAnimationFrame(this.frameRef);
     }
   }
-
-  //   update() {
-  //     if (
-  //       (!this.keysPressed.has("w") &&
-  //         !this.keysPressed.has("s") &&
-  //         !this.keysPressed.has("a") &&
-  //         !this.keysPressed.has("d")) ||
-  //       (this.keysPressed.has("w") && this.keysPressed.has("s")) ||
-  //       (this.keysPressed.has("a") && this.keysPressed.has("d"))
-  //     ) {
-  //       this.stopThrust();
-  //       this.ship.firingThruster = false;
-  //       this.ship.acceleration = { x: 0, y: 0 };
-  //     } else {
-  //       if (this.positionInterval !== null) {
-  //         clearInterval(this.positionInterval);
-  //         this.positionInterval = null;
-  //       }
-  //       if (this.keysPressed.has("w")) this.startThrust("up");
-  //       if (this.keysPressed.has("s")) this.startThrust("down");
-  //       // if (keysPressed.has('a')) startThrust('left');
-  //       // if (keysPressed.has('d')) startThrust('right');
-  //       if (this.keysPressed.has("a")) {
-  //         this.ship.addRotation(-1);
-  //       }
-  //       if (this.keysPressed.has("d")) {
-  //         this.ship.addRotation(1);
-  //       }
-  //     }
-  //     this.frameRef = requestAnimationFrame(this.update.bind(this));
-  //   }
   update() {
     const totalForce = { x: 0, y: 0 };
 
@@ -106,26 +75,6 @@ export class GameEngine {
     this.frameRef = requestAnimationFrame(this.update.bind(this));
   }
 
-  startThrust(direction: "up" | "down" | "left" | "right") {
-    if (direction === "up" || direction === "down") {
-      this.ship.firingThruster = true;
-      if (this.thrustIntervalY !== null) {
-        clearInterval(this.thrustIntervalY);
-      }
-      this.thrustIntervalY = setInterval(
-        () => this.applyThrust(direction),
-        500
-      );
-    } else {
-      if (this.thrustIntervalX !== null) {
-        clearInterval(this.thrustIntervalX);
-      }
-      this.thrustIntervalX = setInterval(
-        () => this.applyThrust(direction),
-        500
-      );
-    }
-  }
   applyThrust(direction: "up" | "down" | "left" | "right") {
     if (direction === "up" || direction === "down") {
       this.ship.currentThrustY = Math.min(
@@ -145,21 +94,6 @@ export class GameEngine {
         Math.sin(this.ship.rotationAngle - Math.PI / 2);
       return { x, y };
     }
-  }
-
-  stopThrust() {
-    if (this.thrustIntervalY !== null) {
-      clearInterval(this.thrustIntervalY);
-      this.thrustIntervalY = null;
-      this.ship.currentThrustY = 0;
-    }
-    if (this.thrustIntervalX !== null) {
-      clearInterval(this.thrustIntervalX);
-      this.thrustIntervalX = null;
-      this.ship.currentThrustX = 0;
-    }
-    clearInterval(this.positionInterval!);
-    this.positionInterval = null;
   }
 
 }

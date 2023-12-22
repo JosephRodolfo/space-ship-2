@@ -200,7 +200,7 @@ function draw() {
 
     if (props.background) {
       const { x: bgX, y: bgY } = updateBackgroundPosition(
-        props.ship?.velocity!,
+        !store.pause ? props.ship?.velocity! : { x: 0, y: 0},
         backgroundOffset.value
       );
       backgroundOffset.value.x = bgX!;
