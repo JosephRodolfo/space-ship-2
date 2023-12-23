@@ -45,28 +45,13 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref, computed, watch } from "vue";
 import { useKeyPress } from "../composables/useKeyPress";
-import { Ship } from "../entitites/ship";
 import { GameEngine } from "../entitites/GameEngine";
 import CanvasWithControls from "./CanvasWithControls.vue";
 import { useMainStore } from "../store/store";
 import { Physics } from "../entitites/physics";
 
 const { keysPressed, onKeydown, onKeyup } = useKeyPress();
-const massStation = 420000;
-const G = 6.674 * Math.pow(10, -11);
-const earthMass = 5.972e24;
-const distanceFromCenterOfEarth = 6_791_000;
 const speed = ref(1);
-const orbitalVelocity = Math.sqrt((G * earthMass) / distanceFromCenterOfEarth);
-const ship = ref(
-  new Ship(
-    "ship",
-    massStation,
-    { x: 0, y: 0 },
-    { x: -orbitalVelocity, y: 0 },
-    100
-  )
-);
 const currentScenario = computed(() => {
   return mainStore.initialState;
 })
@@ -84,7 +69,7 @@ const canvasSize = computed(() => ({
 }));
 
 watch(
-  () => ship.value.firingThruster,
+  () => mainStore.initialState.ship.firingThruster,
   (newVal, oldVal) => {
     if (newVal !== false && oldVal !== true) {
       return;

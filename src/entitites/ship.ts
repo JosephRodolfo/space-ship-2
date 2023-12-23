@@ -22,7 +22,7 @@ export class Ship extends CelestialBody {
     this.maxThrust = Number.POSITIVE_INFINITY;
     this.currentThrustY = 0;
     this.currentThrustX = 0;
-    this.rotationIncrement = 1 * (Math.PI / 180);
+    this.rotationIncrement = 3 * (Math.PI / 180);
   }
 
   // applyThrust({ x = 0, y = 0 }: Vector2D) {
