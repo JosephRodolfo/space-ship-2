@@ -7,12 +7,17 @@ const earthRadius = 6_371_000;
 const massStation = 420000;
 const distanceFromCenterOfEarth = 6_791_000;
 const earthMass = 5.972e+24;
+const sunMass = 1.989e30; 
+const sunRadius = 695700000; 
+const earthToSunDistance = 149.6e9; 
+const stationOrbitalVelocity = -7661.011873789845;
+const earthOrbitalVelocity = 29_780;
 
 const initialState: Scenario[] = [
   {
     id: 1,
     name: 'Planet Earth',
-    ship: new Ship('ship', massStation, { x: 0, y: 0 }, { x: -7661.011873789845, y: 0 }, 100),
+    ship: new Ship('ship', massStation, { x: 0, y: 0 }, { x: stationOrbitalVelocity, y: 0 }, 100),
     otherBodies: [
       new Planet({ x: 0, y: distanceFromCenterOfEarth }, earthMass, { x: 0, y: 0 }, earthRadius, 'earth'),
     ]
@@ -22,7 +27,16 @@ const initialState: Scenario[] = [
     name: 'Empty Space',
     ship: new Ship('ship', massStation, { x: 0, y: 0 }, { x: 0, y: 0 }, 100),
     otherBodies: []
-  }
+  },
+  {
+    id: 3,
+    name: 'Planet Earth with Sun',
+    ship: new Ship('ship', massStation, { x: 0, y: 0 }, { x: stationOrbitalVelocity + earthOrbitalVelocity, y: 0 }, 100),
+    otherBodies: [
+      new Planet({ x: 0, y: distanceFromCenterOfEarth }, earthMass, { x: earthOrbitalVelocity, y: 0 }, earthRadius, 'earth'),
+      new Planet({ x: 0, y: -earthToSunDistance }, sunMass, { x: 0, y: 0 }, sunRadius, 'sun'),
+    ]
+  },
 ]
 
 const originalScenarios: Scenario[] = JSON.parse(JSON.stringify(initialState));
@@ -33,7 +47,7 @@ export const useMainStore = defineStore('main', {
     loading: false,
     error: null,
     pause: false,
-    initialState: { ...initialState[0] },
+    initialState: { ...initialState[2] },
     scenarioOptions: [...initialState],
   }),
   actions: {

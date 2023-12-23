@@ -62,7 +62,7 @@ export class GameEngine {
       this.ship.addRotation(1);
     }
       this.frameCount++
-      if (this.frameCount % 100 === 0) {
+      if (this.frameCount % 50 === 0) {
         const collision = this.otherObjects.reduce((prev, curr) => {
             const res = this.physics.detectCollision(this.ship, curr);
             if (res) {
@@ -76,7 +76,6 @@ export class GameEngine {
         }
         this.frameCount = 0;
       }
-    //   console.log(this.ship.updateAcceleration);
 
     this.physics.advanceTimeStep({
       ship: this.ship,

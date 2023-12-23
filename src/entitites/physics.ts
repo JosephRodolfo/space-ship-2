@@ -6,7 +6,7 @@ const G = 6.674 * Math.pow(10, -11);
 export class Physics {
   constructor() {}
 
-  calculateGravitationalForce(ship1: Ship, ship2: Planet): Vector2D {
+  calculateGravitationalForce(ship1: CelestialBody, ship2: Planet): Vector2D {
     const { distance, distanceX, distanceY } = this.calculateDistance(
       ship1.position,
       ship2.position
@@ -116,13 +116,42 @@ export class Physics {
       timeStep,
     });
 
+    otherBodies.forEach(planet => {
+      this.updateCelestialBody(planet, otherBodies.filter(b => b !== planet), timeStep);
+    });
+
     callback({
       newPosition,
       newAcceleration,
       newVelocity,
     });
   }
-  sumForces(otherBodies: Planet[] = [], ship: Ship) {
+
+  updateCelestialBody(body: CelestialBody, otherBodies: CelestialBody[], timeStep: number) {
+    const forces = this.sumForces(otherBodies, body);
+
+    const acceleration = this.calculateAcceleration({
+      force: forces,
+      mass: body.mass,
+    });
+
+    const velocity = this.calculateVelocity({
+      acceleration: acceleration,
+      initialVelocity: body.velocity,
+      timeStep,
+    });
+
+    const position = this.calculatePosition({
+      position: body.position,
+      velocity: velocity,
+      timeStep,
+    });
+
+    body.position = position;
+    body.velocity = velocity;
+    body.acceleration = acceleration;
+  }
+  sumForces(otherBodies: Planet[] = [], ship: CelestialBody) {
     return otherBodies.reduce(
       (accumulatedForce: Vector2D, otherShip: Planet) => {
         const gravitationalForce = this.calculateGravitationalForce(

@@ -272,7 +272,8 @@ function draw() {
 function drawOtherObjects(
   ctx: CanvasRenderingContext2D,
   otherObjects: Array<Planet>,
-  scaleFactor: number
+  scaleFactor: number,
+  minimumSize: number = 10 
 ) {
   otherObjects.forEach((obj) => {
     const canvasCenterX = props.canvasSize.x / 2;
@@ -282,11 +283,12 @@ function drawOtherObjects(
     const relativeObjY =
       (obj.position.y! - props.ship!.position.y!) * scaleFactor + canvasCenterY;
 
-    const adjustedRadius = obj.radius * scaleFactor;
+    const adjustedRadius = Math.max(obj.radius * scaleFactor, minimumSize);
 
     ctx.beginPath();
     ctx.arc(relativeObjX, relativeObjY, adjustedRadius, 0, 2 * Math.PI);
-    ctx.fillStyle = "red";
+    const color = obj.name === 'earth' ? 'blue' : 'yellow';
+    ctx.fillStyle = color;
     ctx.fill();
   });
 }

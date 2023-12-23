@@ -8,7 +8,7 @@
   </p>
   <p>Angle: {{ (currentScenario.ship.rotationAngle * (180 / Math.PI)).toFixed(0) }}</p>
   <div class="speed-controls">
-    <input type="range" :min="1" :max="300" :step="1" v-model="speed" />
+    <input type="range" :min="1" :max="5000" :step="1" v-model="speed" />
     <span>{{ speed }}</span>
     <button @click="handlePause">Pause</button>
   </div>
@@ -32,7 +32,7 @@
       :magnificationOpts="{
         stepValue: 1,
         minValue: 1,
-        maxValue: 1000000,
+        maxValue: 1214660006 * 2,
         defaultMagnification: 407143,
       }"
       :ship="currentScenario.ship"
