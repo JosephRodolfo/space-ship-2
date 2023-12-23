@@ -1,4 +1,5 @@
 <template>
+  <ScenarioSelector></ScenarioSelector>
   <p>Velocity X: {{ currentScenario.ship.velocity.x!.toFixed(2) }}</p>
   <p>Velocity Y: {{ currentScenario.ship.velocity.y!.toFixed(2) }}</p>
   <p>
@@ -44,6 +45,7 @@
 
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref, computed, watch } from "vue";
+import ScenarioSelector from "./ScenarioSelector.vue";
 import { useKeyPress } from "../composables/useKeyPress";
 import { GameEngine } from "../entitites/GameEngine";
 import CanvasWithControls from "./CanvasWithControls.vue";
@@ -56,20 +58,14 @@ const currentScenario = computed(() => {
   return mainStore.initialState;
 })
 const mainStore = useMainStore();
-const gameEngine = new GameEngine(
-  currentScenario.value.ship,
-  currentScenario.value.otherBodies,
-  keysPressed,
-  speed,
-  new Physics()
-);
+let gameEngine: GameEngine;
 const canvasSize = computed(() => ({
   x: 250,
   y: 250,
 }));
 
 watch(
-  () => mainStore.initialState.ship.firingThruster,
+  () => currentScenario.value.ship.firingThruster,
   (newVal, oldVal) => {
     if (newVal !== false && oldVal !== true) {
       return;
@@ -101,9 +97,26 @@ watch(
     });
   }
 );
+
+const initializeGameEngine = () => {
+  if (gameEngine) {
+    gameEngine.stop();
+  }
+  gameEngine = new GameEngine(
+    currentScenario.value.ship,
+    currentScenario.value.otherBodies,
+    keysPressed,
+    speed,
+    new Physics()
+  );
+  gameEngine.start();
+};
+watch(currentScenario, () => {
+  initializeGameEngine();
+});
 let worker: Worker;
 onMounted(() => {
-  gameEngine.start();
+  initializeGameEngine();  
   worker = new Worker(
     new URL("../workers/trajectoryWorker.ts", import.meta.url),
     { type: "module" }

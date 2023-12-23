@@ -76,7 +76,7 @@ export class GameEngine {
         }
         this.frameCount = 0;
       }
-    
+    //   console.log(this.ship.updateAcceleration);
 
     this.physics.advanceTimeStep({
       ship: this.ship,

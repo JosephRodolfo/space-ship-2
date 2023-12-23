@@ -36,7 +36,6 @@ const roundedMagnification = computed(() => {
   gap: 10px;
 }
 
-/* Add additional styles for the slider if needed */
 </style>
 
   

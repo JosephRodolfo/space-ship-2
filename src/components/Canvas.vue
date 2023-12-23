@@ -20,7 +20,7 @@ import { Vector2D } from "../interfaces";
 import shipSvg from "../assets/gray-ship.svg";
 import fireSvg from "../assets/blue-fire.svg";
 import { Planet } from "../entitites/planet";
-import { useMainStore } from "../store/store"; // Update the path as needed
+import { useMainStore } from "../store/store"; 
 
 const props = defineProps({
   ship: Object as () => Ship,
@@ -81,7 +81,6 @@ function updateBackgroundPosition(
 }
 
 let animationFrameId: number;
-// const starBackgroundCtx = createStarField(starBackgroundSize, starBackgroundSize, props.canvasSize.x);
 
 const starBackgroundCtx = computed(() => {
   return renderStarField(
@@ -98,8 +97,8 @@ const scaleFactor = computed(() => {
 const scaleBarCanvas = computed(() => {
   const offScreenCanvas = document.createElement("canvas");
   const ctx = offScreenCanvas.getContext("2d");
-  offScreenCanvas.width = props.canvasSize.x; // Assuming canvasSize is a ref or reactive object
-  offScreenCanvas.height = 30; // Height enough to fit scale bar
+  offScreenCanvas.width = props.canvasSize.x;
+  offScreenCanvas.height = 30;
 
   const worldScaleBarLength = 100;
   const scaleFactor = 1 / Number(props.magnification);
@@ -165,8 +164,8 @@ const shipAndThrusterCtx = computed(() => {
 });
 const trajectoryCtx = computed(() => {
   const offScreenCanvas = document.createElement("canvas");
-  offScreenCanvas.width = props.canvasSize.x; // Set to your desired width
-  offScreenCanvas.height = props.canvasSize.y; // Set to your desired height
+  offScreenCanvas.width = props.canvasSize.x; 
+  offScreenCanvas.height = props.canvasSize.y; 
   const ctx = offScreenCanvas.getContext("2d");
   if (!ctx) return null;
 
@@ -233,7 +232,6 @@ function draw() {
         }
       }
 
-      // const adjustedRadius = radius * props.magnification;
     }
     if (props.drawOtherObjects) {
       drawOtherObjects(ctx, props.otherObjects!, scaleFactor.value);
