@@ -20,13 +20,45 @@ const initialState: Scenario[] = [
     ship: new Ship('ship', massStation, { x: 0, y: 0 }, { x: stationOrbitalVelocity, y: 0 }, 100),
     otherBodies: [
       new Planet({ x: 0, y: distanceFromCenterOfEarth }, earthMass, { x: 0, y: 0 }, earthRadius, 'earth'),
-    ]
+    ],
+    speedSettings: {
+      min: 1,
+      max: 300,
+    },
+    magnificationSettings: {
+      map: {
+        min: 1,
+        max: 10000,
+        default: 6000,
+      },
+      miniMap: {
+        min: 1,
+        max: 1000000,
+        default: 407143,
+      }
+    }
   },
   {
     id: 2,
     name: 'Empty Space',
     ship: new Ship('ship', massStation, { x: 0, y: 0 }, { x: 0, y: 0 }, 100),
-    otherBodies: []
+    otherBodies: [],
+    speedSettings: {
+      min: 1,
+      max: 300,
+    },
+    magnificationSettings: {
+      map: {
+        min: 1,
+        max: 10000,
+        default: 6000,
+      },
+      miniMap: {
+        min: 1,
+        max: 1000000,
+        default: 407143,
+      }
+    }
   },
   {
     id: 3,
@@ -35,7 +67,23 @@ const initialState: Scenario[] = [
     otherBodies: [
       new Planet({ x: 0, y: distanceFromCenterOfEarth }, earthMass, { x: earthOrbitalVelocity, y: 0 }, earthRadius, 'earth'),
       new Planet({ x: 0, y: -earthToSunDistance }, sunMass, { x: 0, y: 0 }, sunRadius, 'sun'),
-    ]
+    ],
+    speedSettings: {
+      min: 1,
+      max: 5000,
+    },
+    magnificationSettings: {
+      map: {
+        min: 1,
+        max: 10000,
+        default: 6000,
+      },
+      miniMap: {
+        min: 1,
+        max: 1214660006 * 2,
+        default: 407143,
+      }
+    }
   },
 ]
 

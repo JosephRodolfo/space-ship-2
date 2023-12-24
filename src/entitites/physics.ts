@@ -90,6 +90,7 @@ export class Physics {
       newPosition: Vector2D;
       newAcceleration: Vector2D;
       newVelocity: Vector2D;
+      otherBodiesState: Planet[],
     }) => void;
     }) {
     
@@ -116,18 +117,19 @@ export class Physics {
       timeStep,
     });
 
-    otherBodies.forEach(planet => {
-      this.updateCelestialBody(planet, otherBodies.filter(b => b !== planet), timeStep);
+    const otherBodiesState: Planet[] = otherBodies.map(planet => {
+      return this.calculateCelestialBody(planet, otherBodies.filter(b => b !== planet), timeStep);
     });
 
     callback({
       newPosition,
       newAcceleration,
       newVelocity,
+      otherBodiesState,
     });
   }
 
-  updateCelestialBody(body: CelestialBody, otherBodies: CelestialBody[], timeStep: number) {
+  calculateCelestialBody(body: CelestialBody, otherBodies: CelestialBody[], timeStep: number) {
     const forces = this.sumForces(otherBodies, body);
 
     const acceleration = this.calculateAcceleration({
@@ -147,9 +149,12 @@ export class Physics {
       timeStep,
     });
 
-    body.position = position;
-    body.velocity = velocity;
-    body.acceleration = acceleration;
+    return {
+      position,
+      acceleration,
+      velocity,
+      name: body.name,
+    } as Planet
   }
   sumForces(otherBodies: Planet[] = [], ship: CelestialBody) {
     return otherBodies.reduce(
@@ -176,19 +181,30 @@ export class Physics {
     const [startTime, endTime] = window;
     let trajectory: Vector2D[] = [];
     let currentShipState = { ...ship };
+    let celestialBodies: (Planet)[] = otherBodies;
 
     for (let time = startTime; time <= endTime; time += timeStep) {
       this.advanceTimeStep({
         ship: currentShipState as Ship,
         thrustForce: { x: 0, y: 0 },
-        otherBodies,
+        otherBodies: celestialBodies,
         timeStep,
-        callback: ({ newPosition, newVelocity, newAcceleration }) => {
+        callback: ({ newPosition, newVelocity, newAcceleration, otherBodiesState }) => {
           trajectory.push(newPosition)
           currentShipState.position = newPosition;
           currentShipState.velocity = newVelocity;
           currentShipState.acceleration = newAcceleration;
-        },
+          celestialBodies = otherBodiesState.map((state) => {
+            const body = celestialBodies.find(({ name }) => name === state.name);
+            if (!body) {
+              return state;
+            }
+            body.position = state.position;
+            body.velocity = state.velocity;
+            body.acceleration = state.acceleration;
+            return body;
+        });
+      }
       });
     }
     return {

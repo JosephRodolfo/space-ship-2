@@ -8,9 +8,10 @@
   </p>
   <p>Angle: {{ (currentScenario.ship.rotationAngle * (180 / Math.PI)).toFixed(0) }}</p>
   <div class="speed-controls">
-    <input type="range" :min="1" :max="5000" :step="1" v-model="speed" />
+    <input type="range" :min="speedSettings.min" :max="speedSettings.max" :step="1" v-model="speed" />
     <span>{{ speed }}</span>
     <button @click="handlePause">Pause</button>
+    <button @click="initCalculateTrajectory"> calculate Trajectory</button>
   </div>
   <p>
     Position: {{ currentScenario.ship.position.x!.toFixed(2) }},
@@ -20,9 +21,9 @@
     <CanvasWithControls
       :magnificationOpts="{
         stepValue: 1,
-        minValue: 1,
-        maxValue: 10000,
-        defaultMagnification: 6000,
+        minValue: magnificationSettings.map.min,
+        maxValue: magnificationSettings.map.max,
+        defaultMagnification: magnificationSettings.map.default,
       }"
       :ship="currentScenario.ship"
       :other-objects="currentScenario.otherBodies"
@@ -31,9 +32,9 @@
     <CanvasWithControls
       :magnificationOpts="{
         stepValue: 1,
-        minValue: 1,
-        maxValue: 1214660006 * 2,
-        defaultMagnification: 407143,
+        minValue: magnificationSettings.miniMap.min,
+        maxValue: magnificationSettings.miniMap.max,
+        defaultMagnification: magnificationSettings.miniMap.default,
       }"
       :ship="currentScenario.ship"
       :other-objects="currentScenario.otherBodies"
@@ -57,6 +58,12 @@ const speed = ref(1);
 const currentScenario = computed(() => {
   return mainStore.initialState;
 })
+const speedSettings = computed(() => {
+  return currentScenario.value.speedSettings;
+})
+const magnificationSettings = computed(() => {
+  return currentScenario.value.magnificationSettings;
+});
 const mainStore = useMainStore();
 let gameEngine: GameEngine;
 const canvasSize = computed(() => ({
@@ -64,12 +71,8 @@ const canvasSize = computed(() => ({
   y: 250,
 }));
 
-watch(
-  () => currentScenario.value.ship.firingThruster,
-  (newVal, oldVal) => {
-    if (newVal !== false && oldVal !== true) {
-      return;
-    }
+function initCalculateTrajectory() {
+
     mainStore.setTrajectoryData([]);
     const position = { ...currentScenario.value.ship.position };
     const velocity = { ...currentScenario.value.ship.velocity };
@@ -93,8 +96,17 @@ watch(
       },
       timeStep: Number(speed.value),
       otherBodies: otherMapped,
-      window: [0, 3000],
+      window: [0, 500],
     });
+}
+
+watch(
+  () => currentScenario.value.ship.firingThruster,
+  (newVal, oldVal) => {
+    if (newVal !== false && oldVal !== true) {
+      return;
+    }
+ initCalculateTrajectory();
   }
 );
 
@@ -114,6 +126,7 @@ const initializeGameEngine = () => {
 watch(currentScenario, () => {
   initializeGameEngine();
 });
+
 let worker: Worker;
 onMounted(() => {
   initializeGameEngine();  

@@ -9,4 +9,17 @@ export interface Scenario {
   name: string;
   ship: Ship;
   otherBodies: Planet[];
+  speedSettings: Settings,
+  magnificationSettings: MagnificationSettings,
 }
+
+interface MagnificationSettings {
+  map: Settings,
+  miniMap: Settings
+}
+interface Settings {
+  min: number,
+  max: number,
+  default?: number,
+}
+

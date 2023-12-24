@@ -1,38 +1,46 @@
 <template>
-    <div class="scenario-selector">
-      <p>Scenario Selector</p>
-      <div class="selector-links">
-        <button
-          v-for="scenario in mainStore.scenarioOptions"
-          :key="scenario.id"
-          @click="selectScenario(scenario.id)"
-        >
-          {{ scenario.name }}
-        </button>
-        <button @click="resetScenario">Reset</button>
-      </div>
+  <div class="scenario-selector">
+    <p>Scenario Selector</p>
+    <div class="selector-links">
+      <button
+        v-for="scenario in mainStore.scenarioOptions"
+        :key="scenario.id"
+        :class="{ 'selected-scenario': selectedScenario === scenario.id }"
+        @click="selectScenario(scenario.id)"
+      >
+        {{ scenario.name }}
+      </button>
+      <button @click="resetScenario">Reset</button>
     </div>
-  </template>
-  
-  <script lang="ts" setup>
+  </div>
+</template>
+
+<script lang="ts" setup>
+import { onMounted, ref } from "vue";
 import { useMainStore } from "../store/store";
 const mainStore = useMainStore();
+const selectedScenario = ref<number | null>(null);
 
 function selectScenario(id: number) {
-      mainStore.resetScenario();
+  mainStore.resetScenario();
   mainStore.setScenario(id);
+  selectedScenario.value = id;
 }
+onMounted(() => {
+  selectedScenario.value = mainStore.initialState.id;
+});
 function resetScenario() {
-    mainStore.resetScenario();
+  mainStore.resetScenario();
 }
 </script>
 <style>
 .scenario-selector {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.selected-scenario {
+  background-color: #646cff; /* Selected scenario color */
+  color: white;
 }
 </style>
-
-
-  
