@@ -5,10 +5,6 @@
       :height="canvasSize.y"
       ref="myCanvas"
       style="background-color: black; border: 1px solid #000000"
-      @mousedown="handleMouseDown"
-      @mousemove="handleMouseMove"
-      @mouseup="handleMouseUp"
-      @mouseleave="handleMouseUp" 
     ></canvas>
   </div>
 </template>
@@ -52,6 +48,10 @@ const props = defineProps({
     default: true,
     type: Boolean,
   },
+  canvasCenterOffset: {
+    default: { x: 0, y: 0 },
+    type: Object as () => Vector2D,
+  },
 });
 
 const myCanvas = ref<HTMLCanvasElement | null>(null);
@@ -68,30 +68,6 @@ const computedTrajectoryData = computed(() => {
   return store.trajectoryData;
 });
 
-const isDragging = ref(false);
-const lastMousePosition = ref({ x: 0, y: 0 });
-const canvasCenterOffset = ref({ x: 0, y: 0 });
-
-function handleMouseDown(event: MouseEvent) {
-  isDragging.value = true;
-  lastMousePosition.value = { x: event.clientX, y: event.clientY };
-}
-
-function handleMouseMove(event: MouseEvent) {
-  if (isDragging.value) {
-    const dx = event.clientX - lastMousePosition.value.x;
-    const dy = event.clientY - lastMousePosition.value.y;
-
-    canvasCenterOffset.value.x += dx;
-    canvasCenterOffset.value.y += dy;
-
-    lastMousePosition.value = { x: event.clientX, y: event.clientY };
-  }
-}
-
-function handleMouseUp() {
-  isDragging.value = false;
-}
 
 
 function updateBackgroundPosition(
@@ -261,8 +237,8 @@ function draw() {
   const ctx = canvas?.getContext("2d");
 
   if (ctx) {
-    const canvasCenterX = props.canvasSize.x / 2 + canvasCenterOffset.value.x;
-    const canvasCenterY = props.canvasSize.y / 2 + canvasCenterOffset.value.y;
+    const canvasCenterX = props.canvasSize.x / 2 + props.canvasCenterOffset.x!;
+    const canvasCenterY = props.canvasSize.y / 2 + props.canvasCenterOffset.y!;
   
 
   if (ctx && starBackgroundCtx) {
