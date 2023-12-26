@@ -183,8 +183,8 @@ const trajectoryCtx = computed(() => {
   ctx.beginPath();
 
   computedTrajectoryData.value.forEach((point, index) => {
-    const canvasCenterX = props.canvasSize.x / 2;
-    const canvasCenterY = props.canvasSize.y / 2;
+    const canvasCenterX = props.canvasSize.x / 2 + props.canvasCenterOffset.x!;
+    const canvasCenterY = props.canvasSize.y / 2 + props.canvasCenterOffset.y!;
     const relativeObjX =
       (point.x! - props.ship!.position.x!) * scaleFactor.value + canvasCenterX;
     const relativeObjY =
