@@ -5,6 +5,10 @@
       :height="canvasSize.y"
       ref="myCanvas"
       style="background-color: black; border: 1px solid #000000"
+      @mousedown="handleMouseDown"
+      @mousemove="handleMouseMove"
+      @mouseup="handleMouseUp"
+      @mouseleave="handleMouseUp" 
     ></canvas>
   </div>
 </template>
@@ -63,6 +67,33 @@ const store = useMainStore();
 const computedTrajectoryData = computed(() => {
   return store.trajectoryData;
 });
+
+const isDragging = ref(false);
+const lastMousePosition = ref({ x: 0, y: 0 });
+const canvasCenterOffset = ref({ x: 0, y: 0 });
+
+function handleMouseDown(event: MouseEvent) {
+  isDragging.value = true;
+  lastMousePosition.value = { x: event.clientX, y: event.clientY };
+}
+
+function handleMouseMove(event: MouseEvent) {
+  if (isDragging.value) {
+    const dx = event.clientX - lastMousePosition.value.x;
+    const dy = event.clientY - lastMousePosition.value.y;
+
+    canvasCenterOffset.value.x += dx;
+    canvasCenterOffset.value.y += dy;
+
+    lastMousePosition.value = { x: event.clientX, y: event.clientY };
+  }
+}
+
+function handleMouseUp() {
+  isDragging.value = false;
+}
+
+
 function updateBackgroundPosition(
   velocity: Vector2D,
   offset: Vector2D
@@ -162,6 +193,10 @@ const shipAndThrusterCtx = computed(() => {
 
   return ctx;
 });
+// const currentReferenceBody = computed(() => {
+//   return store.initialState.otherBodies.find((el) => el.name === store.referenceBody);
+
+// });
 const trajectoryCtx = computed(() => {
   const offScreenCanvas = document.createElement("canvas");
   offScreenCanvas.width = props.canvasSize.x; 
@@ -189,10 +224,46 @@ const trajectoryCtx = computed(() => {
 
   return ctx;
 });
+// const trajectoryCtx = computed(() => {
+//   const offScreenCanvas = document.createElement("canvas");
+//   offScreenCanvas.width = props.canvasSize.x; 
+//   offScreenCanvas.height = props.canvasSize.y; 
+//   const ctx = offScreenCanvas.getContext("2d");
+//   if (!ctx) return null;
+
+//   ctx.beginPath();
+//   computedTrajectoryData.value.forEach((point, index) => {
+//     const canvasCenterX = props.canvasSize.x / 2;
+//     const canvasCenterY = props.canvasSize.y / 2;
+//     const referenceBodyX = currentReferenceBody.value ? currentReferenceBody.value.position.x : 0;
+//     const referenceBodyY = currentReferenceBody.value ? currentReferenceBody.value.position.y : 0;
+
+//     const relativeObjX =
+//       (point.x! - referenceBodyX! - props.ship!.position.x!) * scaleFactor.value + canvasCenterX;
+//     const relativeObjY =
+//       (point.y! - referenceBodyY! - props.ship!.position.y!) * scaleFactor.value + canvasCenterY;
+
+//     if (index === 0) {
+//       ctx.moveTo(relativeObjX, relativeObjY);
+//     } else {
+//       ctx.lineTo(relativeObjX, relativeObjY);
+//     }
+//   });
+
+//   ctx.strokeStyle = "white";
+//   ctx.stroke();
+
+//   return ctx;});
+
 
 function draw() {
   const canvas = myCanvas.value;
   const ctx = canvas?.getContext("2d");
+
+  if (ctx) {
+    const canvasCenterX = props.canvasSize.x / 2 + canvasCenterOffset.value.x;
+    const canvasCenterY = props.canvasSize.y / 2 + canvasCenterOffset.value.y;
+  
 
   if (ctx && starBackgroundCtx) {
     ctx.clearRect(0, 0, canvas!.width, canvas!.height);
@@ -234,12 +305,13 @@ function draw() {
 
     }
     if (props.drawOtherObjects) {
-      drawOtherObjects(ctx, props.otherObjects!, scaleFactor.value);
+      drawOtherObjects(ctx, props.otherObjects!, scaleFactor.value, 10, { x: canvasCenterX, y: canvasCenterY });
     }
 
     if (shipAndThrusterCtx.value) {
       ctx.save();
-      ctx.translate(canvas!.width / 2, canvas!.height / 2);
+      ctx.translate(canvasCenterX, canvasCenterY); 
+      // ctx.translate(canvas!.width / 2, canvas!.height / 2);
       ctx.rotate(props.ship!.rotationAngle);
       ctx.drawImage(
         shipAndThrusterCtx.value.canvas,
@@ -248,10 +320,10 @@ function draw() {
       );
       ctx.restore();
     }
-    const res = computedTrajectoryData.value.find(
-      (data) => data.x === props.ship?.position.x
-    );
-    if (res && computedTrajectoryData.value.length > 0 && trajectoryCtx.value) {
+    // const res = computedTrajectoryData.value.find(
+    //   (data) => data.x === props.ship?.position.x
+    // );
+    if (computedTrajectoryData.value.length > 0 && trajectoryCtx.value) {
       ctx.save();
       ctx.drawImage(trajectoryCtx.value.canvas, 0, 0);
       ctx.restore();
@@ -266,6 +338,7 @@ function draw() {
     ctx.restore();
   }
 
+}
   animationFrameId = requestAnimationFrame(draw);
 }
 
@@ -273,15 +346,17 @@ function drawOtherObjects(
   ctx: CanvasRenderingContext2D,
   otherObjects: Array<Planet>,
   scaleFactor: number,
-  minimumSize: number = 10 
+  minimumSize: number = 10,
+  canvasCenter: Vector2D, 
 ) {
+  const { x: canvasCenterX, y: canvasCenterY } = canvasCenter;
   otherObjects.forEach((obj) => {
-    const canvasCenterX = props.canvasSize.x / 2;
-    const canvasCenterY = props.canvasSize.y / 2;
+    // const canvasCenterX = props.canvasSize.x / 2;
+    // const canvasCenterY = props.canvasSize.y / 2;
     const relativeObjX =
-      (obj.position.x! - props.ship!.position.x!) * scaleFactor + canvasCenterX;
+      (obj.position.x! - props.ship!.position.x!) * scaleFactor + canvasCenterX!;
     const relativeObjY =
-      (obj.position.y! - props.ship!.position.y!) * scaleFactor + canvasCenterY;
+      (obj.position.y! - props.ship!.position.y!) * scaleFactor + canvasCenterY!;
 
     const adjustedRadius = Math.max(obj.radius * scaleFactor, minimumSize);
 

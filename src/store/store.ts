@@ -97,6 +97,7 @@ export const useMainStore = defineStore('main', {
     pause: false,
     initialState: { ...initialState[2] },
     scenarioOptions: [...initialState],
+    referenceBody: 'earth',
   }),
   actions: {
     setTrajectoryData(data: Vector2D[]) {
@@ -141,5 +142,8 @@ export const useMainStore = defineStore('main', {
         )
       };
     },
+    setReferenceBody(value: string) {
+      this.referenceBody = value;
+    }
     },
 });

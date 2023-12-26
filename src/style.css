@@ -54,6 +54,10 @@ button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
+.selected-button {
+  background-color: #646cff; 
+  color: white;
+}
 
 .card {
   padding: 2em;

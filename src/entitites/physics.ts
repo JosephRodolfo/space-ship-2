@@ -227,4 +227,10 @@ export class Physics {
   calculateOribitalVelocity(distance: number, mass: number) {
     return Math.sqrt(G * mass / distance);
   }
+  calculateRelativeVelocity(shipVelocity: Vector2D, referenceBodyVelocity: Vector2D) {
+    return {
+      x: shipVelocity.x! - referenceBodyVelocity.x!,
+      y: shipVelocity.y! - referenceBodyVelocity.y!,
+    };
+  }
 }

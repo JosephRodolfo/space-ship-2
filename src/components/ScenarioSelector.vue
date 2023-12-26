@@ -5,7 +5,7 @@
       <button
         v-for="scenario in mainStore.scenarioOptions"
         :key="scenario.id"
-        :class="{ 'selected-scenario': selectedScenario === scenario.id }"
+        :class="{ 'selected-button': selectedScenario === scenario.id }"
         @click="selectScenario(scenario.id)"
       >
         {{ scenario.name }}
@@ -38,9 +38,5 @@ function resetScenario() {
   display: flex;
   flex-direction: column;
   align-items: center;
-}
-.selected-scenario {
-  background-color: #646cff; /* Selected scenario color */
-  color: white;
 }
 </style>

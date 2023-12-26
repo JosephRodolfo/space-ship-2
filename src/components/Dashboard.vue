@@ -70,12 +70,20 @@ const canvasSize = computed(() => ({
   x: 250,
   y: 250,
 }));
+const physics = new Physics();
+const currentReferenceBody = computed(() => {
+  return mainStore.initialState.otherBodies.find((el) => el.name === mainStore.referenceBody);
+})
 
 function initCalculateTrajectory() {
+    const relativeVelocity = currentReferenceBody.value 
+    ? physics.calculateRelativeVelocity(currentScenario.value.ship.velocity, currentReferenceBody.value!.velocity)
+    :
+    currentScenario.value.ship.velocity;
 
     mainStore.setTrajectoryData([]);
     const position = { ...currentScenario.value.ship.position };
-    const velocity = { ...currentScenario.value.ship.velocity };
+    const velocity = { ...relativeVelocity };
     const acceleration = { ...currentScenario.value.ship.acceleration };
     const otherMapped = currentScenario.value.otherBodies.map(
       ({ mass, position, acceleration, velocity }) => {
@@ -94,7 +102,7 @@ function initCalculateTrajectory() {
         acceleration,
         mass: currentScenario.value.ship.mass,
       },
-      timeStep: Number(speed.value),
+      timeStep: Number(speed.value) ? Number(speed.value) : 1,
       otherBodies: otherMapped,
       window: [0, 500],
     });
