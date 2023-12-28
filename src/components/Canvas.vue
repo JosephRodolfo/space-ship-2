@@ -173,31 +173,70 @@ const shipAndThrusterCtx = computed(() => {
 //   return store.initialState.otherBodies.find((el) => el.name === store.referenceBody);
 
 // });
+// const trajectoryCtx = computed(() => {
+//   console.log('recomputing trajectory image');
+//   const offScreenCanvas = document.createElement("canvas");
+//   offScreenCanvas.width = props.canvasSize.x; 
+//   offScreenCanvas.height = props.canvasSize.y; 
+//   const ctx = offScreenCanvas.getContext("2d");
+//   if (!ctx) return null;
+
+//   ctx.beginPath();
+//   ctx.strokeStyle = "white";
+
+//   computedTrajectoryData.value.forEach((point, index) => {
+//     const canvasCenterX = props.canvasSize.x / 2 + props.canvasCenterOffset.x!;
+//     const canvasCenterY = props.canvasSize.y / 2 + props.canvasCenterOffset.y!;
+
+//     const relativeObjX =
+//       (point.x! - props.ship!.position.x!) * scaleFactor.value + canvasCenterX!;
+//     const relativeObjY =
+//       (point.y! - props.ship!.position.y!) * scaleFactor.value + canvasCenterY!;
+
+//     if (index === 0) {
+//       ctx.moveTo(relativeObjX, relativeObjY);
+//     } else {
+//       ctx.lineTo(relativeObjX, relativeObjY);
+//     }
+//     ctx.stroke();
+
+//     ctx.save(); 
+//     ctx.beginPath();
+//     ctx.arc(relativeObjX, relativeObjY, 2 * 0.5, 0, 2 * Math.PI); 
+//     ctx.fillStyle = "white";
+//     ctx.fill(); 
+//     ctx.restore();
+//   });
+
+//   ctx.stroke(); 
+
+//   return ctx;
+// });
+
 const trajectoryCtx = computed(() => {
   const offScreenCanvas = document.createElement("canvas");
-  offScreenCanvas.width = props.canvasSize.x; 
-  offScreenCanvas.height = props.canvasSize.y; 
+  
+  offScreenCanvas.width = props.canvasSize.x * 10; 
+  offScreenCanvas.height = props.canvasSize.y * 10; 
   const ctx = offScreenCanvas.getContext("2d");
   if (!ctx) return null;
 
   ctx.beginPath();
+  ctx.strokeStyle = "white";
 
   computedTrajectoryData.value.forEach((point, index) => {
-    const canvasCenterX = props.canvasSize.x / 2 + props.canvasCenterOffset.x!;
-    const canvasCenterY = props.canvasSize.y / 2 + props.canvasCenterOffset.y!;
-    const relativeObjX =
-      (point.x! - props.ship!.position.x!) * scaleFactor.value + canvasCenterX;
-    const relativeObjY =
-      (point.y! - props.ship!.position.y!) * scaleFactor.value + canvasCenterY;
+    const origin = computedTrajectoryData.value[0];
+    const relativeObjX = (point.x! - origin.x!) * scaleFactor.value + offScreenCanvas.width / 2;
+    const relativeObjY = (point.y! - origin.y!) * scaleFactor.value + offScreenCanvas.height / 2;
+
     if (index === 0) {
       ctx.moveTo(relativeObjX, relativeObjY);
     } else {
       ctx.lineTo(relativeObjX, relativeObjY);
     }
   });
-  ctx.strokeStyle = "white";
-  ctx.stroke();
 
+  ctx.stroke();
   return ctx;
 });
 // const trajectoryCtx = computed(() => {
@@ -287,7 +326,6 @@ function draw() {
     if (shipAndThrusterCtx.value) {
       ctx.save();
       ctx.translate(canvasCenterX, canvasCenterY); 
-      // ctx.translate(canvas!.width / 2, canvas!.height / 2);
       ctx.rotate(props.ship!.rotationAngle);
       ctx.drawImage(
         shipAndThrusterCtx.value.canvas,
@@ -296,12 +334,26 @@ function draw() {
       );
       ctx.restore();
     }
-    // const res = computedTrajectoryData.value.find(
-    //   (data) => data.x === props.ship?.position.x
-    // );
-    if (computedTrajectoryData.value.length > 0 && trajectoryCtx.value) {
+    const res = computedTrajectoryData.value.find(
+      ({ x, y }) => x === props.ship?.position.x  && y === props.ship?.position.y
+    );
+
+    if (res && computedTrajectoryData.value.length > 0 && trajectoryCtx.value) {
+      const trajectoryCanvas = trajectoryCtx.value.canvas;
+
       ctx.save();
-      ctx.drawImage(trajectoryCtx.value.canvas, 0, 0);
+
+      const shipOffsetX = (computedTrajectoryData.value[0].x! - props.ship!.position.x!) * scaleFactor.value;
+      const shipOffsetY = (computedTrajectoryData.value[0].y! - props.ship!.position.y!) * scaleFactor.value;
+
+      const drawStartX = (trajectoryCanvas.width / 2) - shipOffsetX - (canvas!.width / 2);
+      const drawStartY = (trajectoryCanvas.height / 2) - shipOffsetY - (canvas!.height / 2);
+
+      const startX = drawStartX;
+      const startY = drawStartY;
+
+      ctx.drawImage(trajectoryCanvas, startX, startY, canvas!.width, canvas!.height, 0, 0, canvas!.width, canvas!.height);
+
       ctx.restore();
     }
 

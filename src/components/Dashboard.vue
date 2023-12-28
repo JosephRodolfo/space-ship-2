@@ -104,7 +104,7 @@ function initCalculateTrajectory() {
       },
       timeStep: Number(speed.value) ? Number(speed.value) : 1,
       otherBodies: otherMapped,
-      window: [0, 500],
+      window: [0, 2000],
     });
 }
 

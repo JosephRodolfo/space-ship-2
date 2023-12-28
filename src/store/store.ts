@@ -28,7 +28,7 @@ const initialState: Scenario[] = [
     magnificationSettings: {
       map: {
         min: 1,
-        max: 10000,
+        max: 20000,
         default: 6000,
       },
       miniMap: {
