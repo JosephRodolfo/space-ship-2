@@ -1,5 +1,6 @@
 import { Vector2D } from "../interfaces";
 import { CelestialBody } from "./celestialBody";
+import { Physics } from "./physics";
 export class Ship extends CelestialBody {
   firingThruster: boolean;
   private _rotationAngle?: number;
@@ -8,12 +9,14 @@ export class Ship extends CelestialBody {
   currentThrustX: number;
   currentThrustY: number;
   rotationIncrement: number;
+  physics: Physics;
+
   constructor(
     name: string,
     mass: number,
     position: Vector2D,
     velocity: Vector2D,
-    radius: number
+    radius: number,
   ) {
     super(position, mass, velocity, radius, name);
     this._rotationAngle = 0;
@@ -23,6 +26,7 @@ export class Ship extends CelestialBody {
     this.currentThrustY = 0;
     this.currentThrustX = 0;
     this.rotationIncrement = 3 * (Math.PI / 180);
+    this.physics = new Physics();
   }
 
   // applyThrust({ x = 0, y = 0 }: Vector2D) {
@@ -70,4 +74,8 @@ export class Ship extends CelestialBody {
     this._rotationAngle! += direction * this.rotationIncrement;
     this._rotationAngle! %= Math.PI * 2;
   }
+  getNextPosition(args: any) {
+    return this.physics.advanceTimeStep(args)
+  }
+
 }

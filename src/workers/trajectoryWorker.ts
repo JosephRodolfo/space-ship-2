@@ -21,7 +21,7 @@ self.addEventListener('message', (event) => {
 
     currentShipState = finalShipState;
     postMessage({
-      chunk: trajectoryChunk,
+      chunk: trajectoryChunk.filter((_el, index) => index % 50 === 0),
     });
   }
 });

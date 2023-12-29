@@ -10,7 +10,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, computed } from "vue";
+import { ref, onMounted, onUnmounted, computed, watch } from "vue";
 import {
   generateStarPositions,
   renderStarField,
@@ -269,6 +269,10 @@ const trajectoryCtx = computed(() => {
 //   ctx.stroke();
 
 //   return ctx;});
+const passedTrajectoryEnd = ref(false);
+watch(computedTrajectoryData, () => {
+  passedTrajectoryEnd.value = true;
+})
 
 
 function draw() {
@@ -334,11 +338,16 @@ function draw() {
       );
       ctx.restore();
     }
-    const res = computedTrajectoryData.value.find(
-      ({ x, y }) => x === props.ship?.position.x  && y === props.ship?.position.y
-    );
+    // const res = computedTrajectoryData.value.find(
+    //   ({ x, y }) => x === props.ship?.position.x  && y === props.ship?.position.y
+    // );
+    const lastTrajectoryPoint = computedTrajectoryData.value[computedTrajectoryData.value.length - 1];
 
-    if (res && computedTrajectoryData.value.length > 0 && trajectoryCtx.value) {
+      if (lastTrajectoryPoint && lastTrajectoryPoint.x === props.ship?.position.x && props.ship?.position.y === lastTrajectoryPoint.y) {
+        passedTrajectoryEnd.value = false;
+    }
+
+    if (passedTrajectoryEnd.value && computedTrajectoryData.value.length > 0 && trajectoryCtx.value) {
       const trajectoryCanvas = trajectoryCtx.value.canvas;
 
       ctx.save();

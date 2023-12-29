@@ -95,7 +95,7 @@ export const useMainStore = defineStore('main', {
     loading: false,
     error: null,
     pause: false,
-    initialState: { ...initialState[2] },
+    initialState: { ...initialState[0] },
     scenarioOptions: [...initialState],
     referenceBody: 'earth',
   }),
