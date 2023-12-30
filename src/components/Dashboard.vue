@@ -76,22 +76,33 @@ const currentReferenceBody = computed(() => {
 })
 
 function initCalculateTrajectory() {
-    const relativeVelocity = currentReferenceBody.value 
+    const relativeVelocity = 
+    currentReferenceBody.value 
     ? physics.calculateRelativeVelocity(currentScenario.value.ship.velocity, currentReferenceBody.value!.velocity)
     :
     currentScenario.value.ship.velocity;
-
+    const relativePosition = 
+    currentReferenceBody.value 
+    ? physics.calculateRelativePosition(currentScenario.value.ship.position, currentReferenceBody.value!.position)
+    :
+    currentScenario.value.ship.position;
+    const relativeAcceleration = 
+    currentReferenceBody.value 
+    ? physics.calculateRelativeAcceleration(currentScenario.value.ship.acceleration, currentReferenceBody.value!.acceleration)
+    :
+    currentScenario.value.ship.acceleration;
     mainStore.setTrajectoryData([]);
-    const position = { ...currentScenario.value.ship.position };
+    const position = { ...relativePosition};
     const velocity = { ...relativeVelocity };
-    const acceleration = { ...currentScenario.value.ship.acceleration };
+    const acceleration = { ...relativeAcceleration };
     const otherMapped = currentScenario.value.otherBodies.map(
-      ({ mass, position, acceleration, velocity }) => {
+      ({ mass, position, acceleration, velocity, name }) => {
         return {
           mass,
           position: { ...position },
           acceleration: { ...acceleration },
           velocity: { ...velocity },
+          name,
         };
       }
     );
@@ -104,7 +115,7 @@ function initCalculateTrajectory() {
       },
       timeStep: Number(speed.value) ? Number(speed.value) : 1,
       otherBodies: otherMapped,
-      window: [0, 2000],
+      window: [0, 10000],
     });
 }
 

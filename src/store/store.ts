@@ -21,6 +21,7 @@ const initialState: Scenario[] = [
     otherBodies: [
       new Planet({ x: 0, y: distanceFromCenterOfEarth }, earthMass, { x: 0, y: 0 }, earthRadius, 'earth'),
     ],
+    referenceBody: '',
     speedSettings: {
       min: 1,
       max: 300,
@@ -47,6 +48,7 @@ const initialState: Scenario[] = [
       min: 1,
       max: 300,
     },
+    referenceBody: '',
     magnificationSettings: {
       map: {
         min: 1,
@@ -72,6 +74,7 @@ const initialState: Scenario[] = [
       min: 1,
       max: 5000,
     },
+    referenceBody: 'earth',
     magnificationSettings: {
       map: {
         min: 1,
@@ -95,9 +98,9 @@ export const useMainStore = defineStore('main', {
     loading: false,
     error: null,
     pause: false,
-    initialState: { ...initialState[0] },
+    initialState: { ...initialState[2] },
     scenarioOptions: [...initialState],
-    referenceBody: 'earth',
+    referenceBody: initialState[2].referenceBody,
   }),
   actions: {
     setTrajectoryData(data: Vector2D[]) {
@@ -128,6 +131,7 @@ export const useMainStore = defineStore('main', {
     },
     initializeScenario(scenario: Scenario) {
       const clonedScenario = JSON.parse(JSON.stringify(scenario));
+      this.setReferenceBody(clonedScenario.referenceBody);
       this.initialState = {
         ...clonedScenario,
         ship: new Ship(

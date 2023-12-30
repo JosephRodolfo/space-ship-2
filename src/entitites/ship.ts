@@ -74,8 +74,5 @@ export class Ship extends CelestialBody {
     this._rotationAngle! += direction * this.rotationIncrement;
     this._rotationAngle! %= Math.PI * 2;
   }
-  getNextPosition(args: any) {
-    return this.physics.advanceTimeStep(args)
-  }
 
 }

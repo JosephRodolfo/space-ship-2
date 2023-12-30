@@ -8,7 +8,6 @@ self.addEventListener('message', (event) => {
   const chunkSize = 1000;
   const maxWindow = window[1];
   let currentShipState = { ...shipData };
-
   for (let start = window[0]; start < maxWindow; start += chunkSize + 1) {
     const end = Math.min(start + chunkSize, maxWindow);
     const chunkWindow: any = [start, end];
@@ -21,7 +20,8 @@ self.addEventListener('message', (event) => {
 
     currentShipState = finalShipState;
     postMessage({
-      chunk: trajectoryChunk.filter((_el, index) => index % 50 === 0),
+      chunk: trajectoryChunk
+      .filter((_el, index) => index % 50 === 0),
     });
   }
 });

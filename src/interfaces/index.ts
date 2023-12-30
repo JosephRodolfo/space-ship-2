@@ -5,12 +5,13 @@ export interface Vector2D {
     y?: number;
 }
 export interface Scenario {
-  id: number;
-  name: string;
-  ship: Ship;
-  otherBodies: Planet[];
+  id: number,
+  name: string,
+  ship: Ship,
+  otherBodies: Planet[],
   speedSettings: Settings,
   magnificationSettings: MagnificationSettings,
+  referenceBody: string,
 }
 
 interface MagnificationSettings {

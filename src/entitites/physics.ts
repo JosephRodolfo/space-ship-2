@@ -182,7 +182,6 @@ export class Physics {
     let trajectory: Vector2D[] = [];
     let currentShipState = { ...ship };
     let celestialBodies: (Planet)[] = otherBodies;
-
     for (let time = startTime; time <= endTime; time += timeStep) {
       this.advanceTimeStep({
         ship: currentShipState as Ship,
@@ -231,6 +230,18 @@ export class Physics {
     return {
       x: shipVelocity.x! - referenceBodyVelocity.x!,
       y: shipVelocity.y! - referenceBodyVelocity.y!,
+    };
+  }
+  calculateRelativePosition(shipPosition: Vector2D, referenceBodyPosition: Vector2D) {
+    return {
+      x: shipPosition.x! - referenceBodyPosition.x!,
+      y: shipPosition.y! - referenceBodyPosition.y!,
+    };
+  }
+  calculateRelativeAcceleration(shipAcceleration: Vector2D, referenceBodyAcceleration: Vector2D) {
+    return {
+      x: shipAcceleration.x! - referenceBodyAcceleration.x!,
+      y: shipAcceleration.y! - referenceBodyAcceleration.y!,
     };
   }
 }
