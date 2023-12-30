@@ -345,23 +345,29 @@ function draw() {
     }
 
     if (passedTrajectoryEnd.value && computedTrajectoryData.value.length > 0 && trajectoryCtx.value) {
-      const trajectoryCanvas = trajectoryCtx.value.canvas;
-
-      ctx.save();
-
-      const shipOffsetX = (computedTrajectoryData.value[0].x! - props.ship!.position.x!) * scaleFactor.value;
-      const shipOffsetY = (computedTrajectoryData.value[0].y! - props.ship!.position.y!) * scaleFactor.value;
-
-      const drawStartX = (trajectoryCanvas.width / 2) - shipOffsetX - (canvas!.width / 2);
-      const drawStartY = (trajectoryCanvas.height / 2) - shipOffsetY - (canvas!.height / 2);
-
-      const startX = drawStartX;
-      const startY = drawStartY;
-
-      ctx.drawImage(trajectoryCanvas, startX, startY, canvas!.width, canvas!.height, 0, 0, canvas!.width, canvas!.height);
-
-      ctx.restore();
+    const trajectoryCanvas = trajectoryCtx.value.canvas;
+    ctx.save();
+      let earthMovementX = 0;
+      let earthMovementY = 0;
+    // Earth's movement offset since the start of the trajectory
+    if (currentReferenceBody.value) {
+     earthMovementX = (currentReferenceBody.value!.position.x! - computedTrajectoryData.value[0].x!) * scaleFactor.value;
+     earthMovementY = (currentReferenceBody.value!.position.y! - computedTrajectoryData.value[0].y!) * scaleFactor.value;
     }
+    // Ship's position relative to the first trajectory point
+    const shipOffsetX = (computedTrajectoryData.value[0].x! - props.ship!.position.x!) * scaleFactor.value;
+    const shipOffsetY = (computedTrajectoryData.value[0].y! - props.ship!.position.y!) * scaleFactor.value;
+
+    // Combined offset for drawing the trajectory
+    const drawStartX = (trajectoryCanvas.width / 2) - shipOffsetX - earthMovementX - (canvas!.width / 2);
+    const drawStartY = (trajectoryCanvas.height / 2) - shipOffsetY - earthMovementY - (canvas!.height / 2);
+
+    // Draw the trajectory canvas at the adjusted position
+    ctx.drawImage(trajectoryCanvas, drawStartX, drawStartY, canvas!.width, canvas!.height, 0, 0, canvas!.width, canvas!.height);
+
+    ctx.restore();
+}
+
 //     if (passedTrajectoryEnd.value && computedTrajectoryData.value.length > 0 && trajectoryCtx.value) {
 //   const trajectoryCanvas = trajectoryCtx.value.canvas;
 
