@@ -80,12 +80,14 @@ export class Physics {
     otherBodies,
     thrustForce,
     timeStep,
+    isTrajectory = false,
     callback,
   }: {
     ship: Ship;
     otherBodies: Planet[]
       thrustForce: Vector2D,
       timeStep: number;
+      isTrajectory?: boolean,
     callback: (result: {
       newPosition: Vector2D;
       newAcceleration: Vector2D;
@@ -93,9 +95,9 @@ export class Physics {
       otherBodiesState: Planet[],
     }) => void;
     }) {
-    
-    const totalForces = this.sumForces(otherBodies, ship);
-
+    const filteredBodies = isTrajectory ? otherBodies.filter(({ name }) => name === 'earth') : otherBodies;
+    const totalForces = this.sumForces(filteredBodies, ship);
+if (isTrajectory) console.log(filteredBodies)
     totalForces.x += thrustForce.x!;
     totalForces.y += thrustForce.y!;
 
@@ -188,6 +190,7 @@ export class Physics {
         thrustForce: { x: 0, y: 0 },
         otherBodies: celestialBodies,
         timeStep,
+        isTrajectory: true,
         callback: ({ newPosition, newVelocity, newAcceleration, otherBodiesState }) => {
           trajectory.push(newPosition)
           currentShipState.position = newPosition;
@@ -198,9 +201,9 @@ export class Physics {
             if (!body) {
               return state;
             }
-            body.position = state.position;
-            body.velocity = state.velocity;
-            body.acceleration = state.acceleration;
+            // body.position = state.position;
+            // body.velocity = state.velocity;
+            // body.acceleration = state.acceleration;
             return body;
         });
       }

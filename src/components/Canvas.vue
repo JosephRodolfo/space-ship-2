@@ -344,50 +344,46 @@ function draw() {
         passedTrajectoryEnd.value = false;
     }
 
-    // if (passedTrajectoryEnd.value && computedTrajectoryData.value.length > 0 && trajectoryCtx.value) {
-    //   const trajectoryCanvas = trajectoryCtx.value.canvas;
-
-    //   ctx.save();
-
-    //   const shipOffsetX = (computedTrajectoryData.value[0].x! - props.ship!.position.x!) * scaleFactor.value;
-    //   const shipOffsetY = (computedTrajectoryData.value[0].y! - props.ship!.position.y!) * scaleFactor.value;
-
-    //   const drawStartX = (trajectoryCanvas.width / 2) - shipOffsetX - (canvas!.width / 2);
-    //   const drawStartY = (trajectoryCanvas.height / 2) - shipOffsetY - (canvas!.height / 2);
-
-    //   const startX = drawStartX;
-    //   const startY = drawStartY;
-
-    //   ctx.drawImage(trajectoryCanvas, startX, startY, canvas!.width, canvas!.height, 0, 0, canvas!.width, canvas!.height);
-
-    //   ctx.restore();
-    // }
     if (passedTrajectoryEnd.value && computedTrajectoryData.value.length > 0 && trajectoryCtx.value) {
-  const trajectoryCanvas = trajectoryCtx.value.canvas;
+      const trajectoryCanvas = trajectoryCtx.value.canvas;
 
-  ctx.save();
+      ctx.save();
 
-  // Calculate the ship's position relative to the first trajectory point
-  const shipOffsetX = (computedTrajectoryData.value[0].x! - props.ship!.position.x!) * scaleFactor.value;
-  const shipOffsetY = (computedTrajectoryData.value[0].y! - props.ship!.position.y!) * scaleFactor.value;
+      const shipOffsetX = (computedTrajectoryData.value[0].x! - props.ship!.position.x!) * scaleFactor.value;
+      const shipOffsetY = (computedTrajectoryData.value[0].y! - props.ship!.position.y!) * scaleFactor.value;
 
-  // Calculate the reference body's current offset relative to the start of the trajectory
-  const referenceBody = currentReferenceBody.value;
-  let referenceBodyOffsetX = 0, referenceBodyOffsetY = 0;
-  if (referenceBody) {
-    referenceBodyOffsetX = (computedTrajectoryData.value[0].x! + referenceBody.position.x!) * scaleFactor.value;
-    referenceBodyOffsetY = (computedTrajectoryData.value[0].y! + referenceBody.position.y!) * scaleFactor.value;
-  }
+      const drawStartX = (trajectoryCanvas.width / 2) - shipOffsetX - (canvas!.width / 2);
+      const drawStartY = (trajectoryCanvas.height / 2) - shipOffsetY - (canvas!.height / 2);
 
-  // Calculate the combined offset for drawing the trajectory
-  const drawStartX = (trajectoryCanvas.width / 2) - shipOffsetX - referenceBodyOffsetX - (canvas!.width / 2);
-  const drawStartY = (trajectoryCanvas.height / 2) - shipOffsetY- referenceBodyOffsetY - (canvas!.height / 2);
+      const startX = drawStartX;
+      const startY = drawStartY;
 
-  // Draw the trajectory canvas at the adjusted position
-  ctx.drawImage(trajectoryCanvas, drawStartX, drawStartY, canvas!.width, canvas!.height, 0, 0, canvas!.width, canvas!.height);
+      ctx.drawImage(trajectoryCanvas, startX, startY, canvas!.width, canvas!.height, 0, 0, canvas!.width, canvas!.height);
 
-  ctx.restore();
-}
+      ctx.restore();
+    }
+//     if (passedTrajectoryEnd.value && computedTrajectoryData.value.length > 0 && trajectoryCtx.value) {
+//   const trajectoryCanvas = trajectoryCtx.value.canvas;
+
+//   ctx.save();
+
+//   const shipOffsetX = (computedTrajectoryData.value[0].x! - props.ship!.position.x!) * scaleFactor.value;
+//   const shipOffsetY = (computedTrajectoryData.value[0].y! - props.ship!.position.y!) * scaleFactor.value;
+
+//   const referenceBody = currentReferenceBody.value;
+//   let referenceBodyOffsetX = 0, referenceBodyOffsetY = 0;
+//   if (referenceBody) {
+//     referenceBodyOffsetX = (computedTrajectoryData.value[0].x! + referenceBody.position.x!) * scaleFactor.value;
+//     referenceBodyOffsetY = (computedTrajectoryData.value[0].y! + referenceBody.position.y!) * scaleFactor.value;
+//   }
+
+//   const drawStartX = (trajectoryCanvas.width / 2) - shipOffsetX - referenceBodyOffsetX - (canvas!.width / 2);
+//   const drawStartY = (trajectoryCanvas.height / 2) - shipOffsetY- referenceBodyOffsetY - (canvas!.height / 2);
+
+//   ctx.drawImage(trajectoryCanvas, drawStartX, drawStartY, canvas!.width, canvas!.height, 0, 0, canvas!.width, canvas!.height);
+
+//   ctx.restore();
+// }
 
     ctx.save();
     ctx.drawImage(

@@ -82,14 +82,14 @@ function initCalculateTrajectory() {
     :
     currentScenario.value.ship.velocity;
     const relativePosition = 
-    currentReferenceBody.value 
-    ? physics.calculateRelativePosition(currentScenario.value.ship.position, currentReferenceBody.value!.position)
-    :
+    // currentReferenceBody.value 
+    // ? physics.calculateRelativePosition(currentScenario.value.ship.position, currentReferenceBody.value!.position)
+    // :
     currentScenario.value.ship.position;
     const relativeAcceleration = 
-    currentReferenceBody.value 
-    ? physics.calculateRelativeAcceleration(currentScenario.value.ship.acceleration, currentReferenceBody.value!.acceleration)
-    :
+    // currentReferenceBody.value 
+    // ? physics.calculateRelativeAcceleration(currentScenario.value.ship.acceleration, currentReferenceBody.value!.acceleration)
+    // :
     currentScenario.value.ship.acceleration;
     mainStore.setTrajectoryData([]);
     const position = { ...relativePosition};
@@ -115,7 +115,7 @@ function initCalculateTrajectory() {
       },
       timeStep: Number(speed.value) ? Number(speed.value) : 1,
       otherBodies: otherMapped,
-      window: [0, 10000],
+      window: [0, 3000],
     });
 }
 
