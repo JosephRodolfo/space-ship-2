@@ -20,6 +20,7 @@ import { Vector2D } from "../interfaces";
 import shipSvg from "../assets/gray-ship.svg";
 import fireSvg from "../assets/blue-fire.svg";
 import { Planet } from "../entitites/planet";
+import { Physics } from "../entitites/physics";
 import { useMainStore } from "../store/store"; 
 
 const props = defineProps({
@@ -62,7 +63,7 @@ const fireImage = new Image();
 const stars = ref<Vector2D[]>([]);
 const shipImageLoaded = ref(false);
 const fireImageLoaded = ref(false);
-
+const physics = new Physics();
 const store = useMainStore();
 const computedTrajectoryData = computed(() => {
   return store.trajectoryData;
@@ -231,8 +232,11 @@ function draw() {
     ctx.clearRect(0, 0, canvas!.width, canvas!.height);
 
     if (props.background) {
+      const velocity = currentReferenceBody.value 
+      ? physics.calculateRelativeVelocity(props.ship!.velocity, currentReferenceBody.value.velocity) 
+      : props.ship?.velocity;
       const { x: bgX, y: bgY } = updateBackgroundPosition(
-        !store.pause ? props.ship?.velocity! : { x: 0, y: 0},
+        !store.pause ? velocity! : { x: 0, y: 0},
         backgroundOffset.value
       );
       backgroundOffset.value.x = bgX!;
