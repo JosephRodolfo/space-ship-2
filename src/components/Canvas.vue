@@ -77,9 +77,9 @@ function updateBackgroundPosition(
   const movementScaleFactor = 0.00001;
 
   let newXOffset =
-    offset.x! + (velocity.x || 0 / 100000000000) * movementScaleFactor;
+    offset.x! + (velocity.x! / 100 || 0 / 1000000000000) * movementScaleFactor;
   let newYOffset =
-    offset.y! + (velocity.y || 0 / 100000000000) * movementScaleFactor;
+    offset.y! + (velocity.y! / 100 || 0 / 1000000000000) * movementScaleFactor;
 
   return {
     x: (newXOffset + starBackgroundSize) % starBackgroundSize,
@@ -290,15 +290,19 @@ function draw() {
     if (passedTrajectoryEnd.value && computedTrajectoryData.value.length > 0 && trajectoryCtx.value) {
     const trajectoryCanvas = trajectoryCtx.value.canvas;
     ctx.save();
+    if (currentReferenceBody.value) {
       cumulativeX += currentReferenceBody.value!.position.x! - lastX;
       cumulativeX += currentReferenceBody.value!.position.y! - lastY;
+    }
 
     const offsetX = (computedTrajectoryData.value[0].x! + cumulativeX - props.ship!.position.x!) * scaleFactor.value;
     const offsetY = (computedTrajectoryData.value[0].y! + cumulativeY - props.ship!.position.y!) * scaleFactor.value;
     const drawStartX = (trajectoryCanvas.width / 2) - offsetX - ( canvas!.width / 2);
     const drawStartY = (trajectoryCanvas.height / 2) - offsetY - (canvas!.height / 2);
-    lastX = currentReferenceBody.value!.position.x! ;
-    lastY = currentReferenceBody.value!.position.y! 
+    if (currentReferenceBody.value) {
+    lastX = currentReferenceBody.value!.position.x!;
+    lastY = currentReferenceBody.value!.position.y!;
+    }
     ctx.drawImage(trajectoryCanvas, drawStartX, drawStartY, canvas!.width, canvas!.height, 0, 0, canvas!.width, canvas!.height);
 
     ctx.restore();

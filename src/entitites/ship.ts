@@ -29,11 +29,6 @@ export class Ship extends CelestialBody {
     this.physics = new Physics();
   }
 
-  // applyThrust({ x = 0, y = 0 }: Vector2D) {
-  //     this.acceleration.x! += x || 0;
-  //     this.acceleration.y! += y || 0;
-  // }
-
   applyThrust(force: Vector2D, timeStep: number) {
     const scaledForce = {
       x: force.x! * timeStep,
@@ -50,10 +45,6 @@ export class Ship extends CelestialBody {
   updateAcceleration(acceleration: Vector2D) {
     this.acceleration.x = acceleration.x;
     this.acceleration.y = acceleration.y;
-  }
-  updatePhysics(timeStep: number) {
-    this.velocity.x! += this.acceleration.x! * timeStep;
-    this.velocity.y! += this.acceleration.y! * timeStep;
   }
   get rotationAngle(): number {
     if (this.acceleration.x === 0 && this.acceleration.y === 0) {
