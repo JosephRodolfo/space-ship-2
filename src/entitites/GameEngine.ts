@@ -83,19 +83,19 @@ export class GameEngine {
       thrustForce: totalForce,
       timeStep: this.speed.value,
       callback: ({ newAcceleration, newVelocity, newPosition, otherBodiesState }) => {
-        this.ship.updateAcceleration(newAcceleration);
-        this.ship.updateVelocity(newVelocity);
-        this.ship.updatePositionNew(newPosition);
         this.otherObjects = otherBodiesState.map((state) => {
           const body = this.otherObjects.find(({ name }) => name === state.name);
           if (!body) {
             return state;
           }
-          body.position = state.position;
+          body.updatePositionNew(state.position);
           body.velocity = state.velocity;
           body.acceleration = state.acceleration;
           return body;
         });
+        this.ship.updateAcceleration(newAcceleration);
+        this.ship.updateVelocity(newVelocity);
+        this.ship.updatePositionNew(newPosition);
       },
     });
 

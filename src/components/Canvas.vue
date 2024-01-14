@@ -88,7 +88,10 @@ function updateBackgroundPosition(
 }
 
 let animationFrameId: number;
-
+let lastX = 0;
+let lastY = 0
+let cumulativeX = 0;
+let cumulativeY = 0;
 const starBackgroundCtx = computed(() => {
   return renderStarField(
     props.canvasSize.x,
@@ -173,47 +176,11 @@ const currentReferenceBody = computed(() => {
   return store.initialState.otherBodies.find((el) => el.name === store.referenceBody);
 
 });
-// const trajectoryCtx = computed(() => {
-//   console.log('recomputing trajectory image');
-//   const offScreenCanvas = document.createElement("canvas");
-//   offScreenCanvas.width = props.canvasSize.x; 
-//   offScreenCanvas.height = props.canvasSize.y; 
-//   const ctx = offScreenCanvas.getContext("2d");
-//   if (!ctx) return null;
 
-//   ctx.beginPath();
-//   ctx.strokeStyle = "white";
-
-//   computedTrajectoryData.value.forEach((point, index) => {
-//     const canvasCenterX = props.canvasSize.x / 2 + props.canvasCenterOffset.x!;
-//     const canvasCenterY = props.canvasSize.y / 2 + props.canvasCenterOffset.y!;
-
-//     const relativeObjX =
-//       (point.x! - props.ship!.position.x!) * scaleFactor.value + canvasCenterX!;
-//     const relativeObjY =
-//       (point.y! - props.ship!.position.y!) * scaleFactor.value + canvasCenterY!;
-
-//     if (index === 0) {
-//       ctx.moveTo(relativeObjX, relativeObjY);
-//     } else {
-//       ctx.lineTo(relativeObjX, relativeObjY);
-//     }
-//     ctx.stroke();
-
-//     ctx.save(); 
-//     ctx.beginPath();
-//     ctx.arc(relativeObjX, relativeObjY, 2 * 0.5, 0, 2 * Math.PI); 
-//     ctx.fillStyle = "white";
-//     ctx.fill(); 
-//     ctx.restore();
-//   });
-
-//   ctx.stroke(); 
-
-//   return ctx;
-// });
 
 const trajectoryCtx = computed(() => {
+  cumulativeX = 0;
+  cumulativeY = 0;
   const offScreenCanvas = document.createElement("canvas");
   
   offScreenCanvas.width = props.canvasSize.x * 10; 
@@ -239,39 +206,15 @@ const trajectoryCtx = computed(() => {
   ctx.stroke();
   return ctx;
 });
-// const trajectoryCtx = computed(() => {
-//   const offScreenCanvas = document.createElement("canvas");
-//   offScreenCanvas.width = props.canvasSize.x; 
-//   offScreenCanvas.height = props.canvasSize.y; 
-//   const ctx = offScreenCanvas.getContext("2d");
-//   if (!ctx) return null;
 
-//   ctx.beginPath();
-//   computedTrajectoryData.value.forEach((point, index) => {
-//     const canvasCenterX = props.canvasSize.x / 2;
-//     const canvasCenterY = props.canvasSize.y / 2;
-//     const referenceBodyX = currentReferenceBody.value ? currentReferenceBody.value.position.x : 0;
-//     const referenceBodyY = currentReferenceBody.value ? currentReferenceBody.value.position.y : 0;
-
-//     const relativeObjX =
-//       (point.x! - referenceBodyX! - props.ship!.position.x!) * scaleFactor.value + canvasCenterX;
-//     const relativeObjY =
-//       (point.y! - referenceBodyY! - props.ship!.position.y!) * scaleFactor.value + canvasCenterY;
-
-//     if (index === 0) {
-//       ctx.moveTo(relativeObjX, relativeObjY);
-//     } else {
-//       ctx.lineTo(relativeObjX, relativeObjY);
-//     }
-//   });
-
-//   ctx.strokeStyle = "white";
-//   ctx.stroke();
-
-//   return ctx;});
 const passedTrajectoryEnd = ref(false);
 watch(computedTrajectoryData, () => {
   passedTrajectoryEnd.value = true;
+})
+
+watch(props.ship?.position!, () => {
+  animationFrameId = requestAnimationFrame(draw);
+
 })
 
 
@@ -343,53 +286,24 @@ function draw() {
       if (lastTrajectoryPoint && lastTrajectoryPoint.x === props.ship?.position.x && props.ship?.position.y === lastTrajectoryPoint.y) {
         passedTrajectoryEnd.value = false;
     }
-
+    
     if (passedTrajectoryEnd.value && computedTrajectoryData.value.length > 0 && trajectoryCtx.value) {
     const trajectoryCanvas = trajectoryCtx.value.canvas;
     ctx.save();
-      let earthMovementX = 0;
-      let earthMovementY = 0;
-    // Earth's movement offset since the start of the trajectory
-    if (currentReferenceBody.value) {
-     earthMovementX = (currentReferenceBody.value!.position.x! - computedTrajectoryData.value[0].x!) * scaleFactor.value;
-     earthMovementY = (currentReferenceBody.value!.position.y! - computedTrajectoryData.value[0].y!) * scaleFactor.value;
-    }
-    // Ship's position relative to the first trajectory point
-    const shipOffsetX = (computedTrajectoryData.value[0].x! - props.ship!.position.x!) * scaleFactor.value;
-    const shipOffsetY = (computedTrajectoryData.value[0].y! - props.ship!.position.y!) * scaleFactor.value;
+      cumulativeX += currentReferenceBody.value!.position.x! - lastX;
+      cumulativeX += currentReferenceBody.value!.position.y! - lastY;
 
-    // Combined offset for drawing the trajectory
-    const drawStartX = (trajectoryCanvas.width / 2) - shipOffsetX - earthMovementX - (canvas!.width / 2);
-    const drawStartY = (trajectoryCanvas.height / 2) - shipOffsetY - earthMovementY - (canvas!.height / 2);
-
-    // Draw the trajectory canvas at the adjusted position
+    const offsetX = (computedTrajectoryData.value[0].x! + cumulativeX - props.ship!.position.x!) * scaleFactor.value;
+    const offsetY = (computedTrajectoryData.value[0].y! + cumulativeY - props.ship!.position.y!) * scaleFactor.value;
+    const drawStartX = (trajectoryCanvas.width / 2) - offsetX - ( canvas!.width / 2);
+    const drawStartY = (trajectoryCanvas.height / 2) - offsetY - (canvas!.height / 2);
+    lastX = currentReferenceBody.value!.position.x! ;
+    lastY = currentReferenceBody.value!.position.y! 
     ctx.drawImage(trajectoryCanvas, drawStartX, drawStartY, canvas!.width, canvas!.height, 0, 0, canvas!.width, canvas!.height);
 
     ctx.restore();
 }
 
-//     if (passedTrajectoryEnd.value && computedTrajectoryData.value.length > 0 && trajectoryCtx.value) {
-//   const trajectoryCanvas = trajectoryCtx.value.canvas;
-
-//   ctx.save();
-
-//   const shipOffsetX = (computedTrajectoryData.value[0].x! - props.ship!.position.x!) * scaleFactor.value;
-//   const shipOffsetY = (computedTrajectoryData.value[0].y! - props.ship!.position.y!) * scaleFactor.value;
-
-//   const referenceBody = currentReferenceBody.value;
-//   let referenceBodyOffsetX = 0, referenceBodyOffsetY = 0;
-//   if (referenceBody) {
-//     referenceBodyOffsetX = (computedTrajectoryData.value[0].x! + referenceBody.position.x!) * scaleFactor.value;
-//     referenceBodyOffsetY = (computedTrajectoryData.value[0].y! + referenceBody.position.y!) * scaleFactor.value;
-//   }
-
-//   const drawStartX = (trajectoryCanvas.width / 2) - shipOffsetX - referenceBodyOffsetX - (canvas!.width / 2);
-//   const drawStartY = (trajectoryCanvas.height / 2) - shipOffsetY- referenceBodyOffsetY - (canvas!.height / 2);
-
-//   ctx.drawImage(trajectoryCanvas, drawStartX, drawStartY, canvas!.width, canvas!.height, 0, 0, canvas!.width, canvas!.height);
-
-//   ctx.restore();
-// }
 
     ctx.save();
     ctx.drawImage(
@@ -431,12 +345,15 @@ function drawOtherObjects(
 }
 
 onMounted(() => {
+  if (currentReferenceBody.value) {
+    lastX = currentReferenceBody.value!.position.x!;
+    lastY = currentReferenceBody.value!.position.y!;
+  }
   stars.value = generateStarPositions(
     starBackgroundSize,
     props.canvasSize.y,
     props.canvasSize.x
   );
-  animationFrameId = requestAnimationFrame(draw);
   shipImage.onload = () => {
     shipImageLoaded.value = true;
   };
@@ -452,3 +369,5 @@ onUnmounted(() => {
   cancelAnimationFrame(animationFrameId);
 });
 </script>
+
+

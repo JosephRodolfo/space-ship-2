@@ -97,7 +97,6 @@ export class Physics {
     }) {
     const filteredBodies = isTrajectory ? otherBodies.filter(({ name }) => name === 'earth') : otherBodies;
     const totalForces = this.sumForces(filteredBodies, ship);
-if (isTrajectory) console.log(filteredBodies)
     totalForces.x += thrustForce.x!;
     totalForces.y += thrustForce.y!;
 

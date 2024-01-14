@@ -27,7 +27,7 @@
       }"
       :ship="currentScenario.ship"
       :other-objects="currentScenario.otherBodies"
-      :background="true"
+      :background="false"
     ></CanvasWithControls>
     <CanvasWithControls
       :magnificationOpts="{
@@ -92,16 +92,16 @@ function initCalculateTrajectory() {
     // :
     currentScenario.value.ship.acceleration;
     mainStore.setTrajectoryData([]);
-    const position = { ...relativePosition};
-    const velocity = { ...relativeVelocity };
-    const acceleration = { ...relativeAcceleration };
+    const position = { x: relativePosition.x, y: relativePosition.y };
+    const velocity = { x: relativeVelocity.x, y: relativeVelocity.y };
+    const acceleration = { x: relativeAcceleration.x, y: relativeAcceleration.y };
     const otherMapped = currentScenario.value.otherBodies.map(
       ({ mass, position, acceleration, velocity, name }) => {
         return {
           mass,
-          position: { ...position },
-          acceleration: { ...acceleration },
-          velocity: { ...velocity },
+          position: { x: position.x, y: position.y},
+          acceleration: { x: acceleration.x, y: acceleration.y},
+          velocity: { x: velocity.x, y: velocity.y},
           name,
         };
       }

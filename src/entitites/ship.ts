@@ -51,18 +51,9 @@ export class Ship extends CelestialBody {
     this.acceleration.x = acceleration.x;
     this.acceleration.y = acceleration.y;
   }
-  updatePositionNew(position: Vector2D) {
-    this.position.x = position.x;
-    this.position.y = position.y;
-  }
   updatePhysics(timeStep: number) {
     this.velocity.x! += this.acceleration.x! * timeStep;
     this.velocity.y! += this.acceleration.y! * timeStep;
-  }
-
-  updatePosition(timeStep: number) {
-    this.position.x! += this.velocity.x! * timeStep;
-    this.position.y! += this.velocity.y! * timeStep;
   }
   get rotationAngle(): number {
     if (this.acceleration.x === 0 && this.acceleration.y === 0) {

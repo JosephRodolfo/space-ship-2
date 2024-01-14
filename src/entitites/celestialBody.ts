@@ -16,6 +16,11 @@ export class CelestialBody {
         this.radius = radius;
         this.name = name;
     }
+    updatePositionNew(position: Vector2D) {
+        this.position.x = position.x;
+        this.position.y = position.y;
+        }
+    
 
 
 }
