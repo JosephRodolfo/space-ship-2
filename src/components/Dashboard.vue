@@ -1,12 +1,13 @@
 <template>
+  <div v-if="currentScenario">
   <ScenarioSelector></ScenarioSelector>
-  <p>Velocity X: {{ currentScenario.ship.velocity.x!.toFixed(2) }}</p>
-  <p>Velocity Y: {{ currentScenario.ship.velocity.y!.toFixed(2) }}</p>
+  <p>Velocity X: {{ currentScenario!.ship.velocity.x!.toFixed(2) }}</p>
+  <p>Velocity Y: {{ currentScenario!.ship.velocity.y!.toFixed(2) }}</p>
   <p>
-    Accleration X: {{ currentScenario.ship.acceleration.x!.toFixed(2) }} Accleration Y:
-    {{ currentScenario.ship.acceleration.y?.toFixed(2) }}
+    Accleration X: {{ currentScenario!.ship.acceleration.x!.toFixed(2) }} Accleration Y:
+    {{ currentScenario!.ship.acceleration.y?.toFixed(2) }}
   </p>
-  <p>Angle: {{ (currentScenario.ship.rotationAngle * (180 / Math.PI)).toFixed(0) }}</p>
+  <p>Angle: {{ (currentScenario!.ship.rotationAngle * (180 / Math.PI)).toFixed(0) }}</p>
   <div class="speed-controls">
     <input type="range" :min="speedSettings.min" :max="speedSettings.max" :step="1" v-model="speed" />
     <span>{{ speed }}</span>
@@ -14,8 +15,8 @@
     <button @click="initCalculateTrajectory"> calculate Trajectory</button>
   </div>
   <p>
-    Position: {{ currentScenario.ship.position.x!.toFixed(2) }},
-    {{ currentScenario.ship.position.y!.toFixed(2) }}
+    Position: {{ currentScenario!.ship.position.x!.toFixed(2) }},
+    {{ currentScenario!.ship.position.y!.toFixed(2) }}
   </p>
   <div class="canvas-container">
     <CanvasWithControls
@@ -25,8 +26,8 @@
         maxValue: magnificationSettings.map.max,
         defaultMagnification: magnificationSettings.map.default,
       }"
-      :ship="currentScenario.ship"
-      :other-objects="currentScenario.otherBodies"
+      :ship="currentScenario!.ship"
+      :other-objects="currentScenario!.otherBodies"
       :background="true"
     ></CanvasWithControls>
     <CanvasWithControls
@@ -36,12 +37,13 @@
         maxValue: magnificationSettings.miniMap.max,
         defaultMagnification: magnificationSettings.miniMap.default,
       }"
-      :ship="currentScenario.ship"
-      :other-objects="currentScenario.otherBodies"
+      :ship="currentScenario!.ship"
+      :other-objects="currentScenario!.otherBodies"
       :background="false"
       :canvas-size="canvasSize"
     ></CanvasWithControls>
   </div>
+</div>
 </template>
 
 <script setup lang="ts">
@@ -59,10 +61,10 @@ const currentScenario = computed(() => {
   return mainStore.initialState;
 })
 const speedSettings = computed(() => {
-  return currentScenario.value.speedSettings;
+  return currentScenario.value!.speedSettings;
 })
 const magnificationSettings = computed(() => {
-  return currentScenario.value.magnificationSettings;
+  return currentScenario.value!.magnificationSettings;
 });
 const mainStore = useMainStore();
 let gameEngine: GameEngine;
@@ -72,10 +74,12 @@ const canvasSize = computed(() => ({
 }));
 const physics = new Physics();
 const currentReferenceBody = computed(() => {
+  if (!mainStore.initialState) return null;
   return mainStore.initialState.otherBodies.find((el) => el.name === mainStore.referenceBody);
 })
 
 function initCalculateTrajectory() {
+  if (!currentScenario.value) return;
     const relativeVelocity = 
     currentReferenceBody.value 
     ? physics.calculateRelativeVelocity(currentScenario.value.ship.velocity, currentReferenceBody.value!.velocity)
@@ -113,23 +117,23 @@ function initCalculateTrajectory() {
     });
 }
 
-watch(
-  () => currentScenario.value.ship.firingThruster,
-  (newVal, oldVal) => {
-    if (newVal !== false && oldVal !== true) {
-      return;
-    }
- initCalculateTrajectory();
-  }
-);
+// watch(
+//   () => currentScenario.value!.ship.firingThruster,
+//   (newVal, oldVal) => {
+//     if (newVal !== false && oldVal !== true) {
+//       return;
+//     }
+//  initCalculateTrajectory();
+//   }
+// );
 
 const initializeGameEngine = () => {
   if (gameEngine) {
     gameEngine.stop();
   }
   gameEngine = new GameEngine(
-    currentScenario.value.ship,
-    currentScenario.value.otherBodies,
+    currentScenario.value!.ship,
+    currentScenario.value!.otherBodies,
     keysPressed,
     speed,
     new Physics()
@@ -142,6 +146,7 @@ watch(currentScenario, () => {
 
 let worker: Worker;
 onMounted(() => {
+  mainStore.initializeScenario(1);
   initializeGameEngine();  
   worker = new Worker(
     new URL("../workers/trajectoryWorker.ts", import.meta.url),

@@ -27,7 +27,7 @@ function selectScenario(id: number) {
   selectedScenario.value = id;
 }
 onMounted(() => {
-  selectedScenario.value = mainStore.initialState.id;
+  selectedScenario.value = mainStore.initialState!.id;
 });
 function resetScenario() {
   mainStore.resetScenario();

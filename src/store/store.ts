@@ -3,6 +3,7 @@ import { Vector2D } from '../interfaces';
 import { Ship } from '../entitites/ship';
 import { Planet } from '../entitites/planet';
 import { Scenario } from '../interfaces';
+import { CelestialBody } from '../entitites/celestialBody';
 const earthRadius = 6_371_000;
 const massStation = 420000;
 const distanceFromCenterOfEarth = 6_791_000;
@@ -98,9 +99,9 @@ export const useMainStore = defineStore('main', {
     loading: false,
     error: null,
     pause: false,
-    initialState: { ...initialState[2] },
+    initialState: null as Scenario|null,
     scenarioOptions: [...initialState],
-    referenceBody: initialState[2].referenceBody,
+    referenceBody: null as string|null,
   }),
   actions: {
     setTrajectoryData(data: Vector2D[]) {
@@ -116,20 +117,20 @@ export const useMainStore = defineStore('main', {
       this.pause = !this.pause;
     },
     setScenario(id: number) {
-      const originalScenario = originalScenarios.find(scenario => scenario.id === id);
-      if (originalScenario) {
-        this.initializeScenario(originalScenario);
+      if (id) {
+        this.initializeScenario(id);
       }
     },
 
     resetScenario() {
-      const currentScenarioId = this.initialState.id;
+      const currentScenarioId = this.initialState?.id;
       const originalScenario = originalScenarios.find(scenario => scenario.id === currentScenarioId);
       if (originalScenario) {
-        this.initializeScenario(originalScenario);
+        this.initializeScenario(currentScenarioId!);
       }
     },
-    initializeScenario(scenario: Scenario) {
+    initializeScenario(id: number) {
+      const scenario = this.scenarioOptions.find((el) => el.id === id);
       const clonedScenario = JSON.parse(JSON.stringify(scenario));
       this.setReferenceBody(clonedScenario.referenceBody);
       this.initialState = {
