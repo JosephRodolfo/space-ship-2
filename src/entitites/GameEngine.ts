@@ -15,6 +15,8 @@ export class GameEngine {
   positionInterval: number | null;
     physics: Physics;
     frameCount: number;
+    windowCount: number;
+    windowMax: number;
 
   constructor(
     ship: Ship,
@@ -33,6 +35,8 @@ export class GameEngine {
     this.positionInterval = null;
       this.physics = physics;
       this.frameCount = 0;
+      this.windowCount = 0;
+      this.windowMax = 0;
   }
 
   start() {
@@ -76,7 +80,7 @@ export class GameEngine {
         }
         this.frameCount = 0;
       }
-
+    this.setWindowCount(1);
     this.physics.advanceTimeStep({
       ship: this.ship,
       otherBodies: this.otherObjects,
@@ -121,6 +125,16 @@ export class GameEngine {
         Math.sin(this.ship.rotationAngle - Math.PI / 2);
       return { x, y };
     }
+  }
+  setWindowCount(value: number, windowMax?: number) {
+    if(windowMax) this.windowMax = windowMax;
+    if (value === 0) this.windowCount = 0;
+    if(this.windowCount === this.windowMax) {
+      this.windowMax = 0;
+      this.windowCount = 0;
+      return;
+    }
+    this.windowCount = this.windowCount + value;
   }
 
 }

@@ -37,6 +37,10 @@ const props = defineProps({
     default: false,
     type: Boolean,
   },
+  drawTrajectory: {
+    default: false,
+    type: Boolean,
+  },
   canvasSize: {
     default: { x: 500, y: 500 },
     type: Object,
@@ -291,7 +295,7 @@ function draw() {
         passedTrajectoryEnd.value = false;
     }
     
-    if (passedTrajectoryEnd.value && computedTrajectoryData.value.length > 0 && trajectoryCtx.value) {
+    if (props.drawTrajectory && computedTrajectoryData.value.length > 0 && trajectoryCtx.value) {
     const trajectoryCanvas = trajectoryCtx.value.canvas;
     ctx.save();
     if (currentReferenceBody.value) {

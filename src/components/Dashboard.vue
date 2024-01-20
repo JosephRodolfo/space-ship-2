@@ -29,6 +29,7 @@
       :ship="currentScenario!.ship"
       :other-objects="currentScenario!.otherBodies"
       :background="true"
+      :draw-trajectory="!!gameEngine.windowCount"
     ></CanvasWithControls>
     <CanvasWithControls
       :magnificationOpts="{
@@ -41,6 +42,7 @@
       :other-objects="currentScenario!.otherBodies"
       :background="false"
       :canvas-size="canvasSize"
+      :draw-trajectory="!!gameEngine.windowCount"
     ></CanvasWithControls>
   </div>
 </div>
@@ -80,6 +82,7 @@ const currentReferenceBody = computed(() => {
 
 function initCalculateTrajectory() {
   if (!currentScenario.value) return;
+  gameEngine.setWindowCount(0, 1000)
     const relativeVelocity = 
     currentReferenceBody.value 
     ? physics.calculateRelativeVelocity(currentScenario.value.ship.velocity, currentReferenceBody.value!.velocity)
@@ -104,6 +107,7 @@ function initCalculateTrajectory() {
         };
       }
     );
+    gameEngine.setWindowCount(1, 1000);
     worker.postMessage({
       shipData: {
         position,
@@ -113,7 +117,7 @@ function initCalculateTrajectory() {
       },
       timeStep: Number(speed.value) ? Number(speed.value) : 1,
       otherBodies: otherMapped,
-      window: [0, 3000],
+      window: [0, 1000],
     });
 }
 

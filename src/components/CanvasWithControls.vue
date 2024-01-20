@@ -30,6 +30,7 @@
         :background="background"
         :canvas-size="canvasSize"
         :canvas-center-offset="canvasCenterOffset"
+        :draw-trajectory="drawTrajectory"
         @mousedown="handleMouseDown"
         @mousemove="handleMouseMove"
         @mouseup="handleMouseUp"
@@ -50,6 +51,10 @@ import { useMainStore } from "../store/store";
 const props = defineProps({
   ship: Object as () => Ship,
   background: Boolean,
+  drawTrajectory: {
+    default: false,
+    type: Boolean,
+  },
   canvasSize: {
     default: { x: 500, y: 500 },
     type: Object,
