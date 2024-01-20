@@ -80,7 +80,7 @@ export class GameEngine {
         }
         this.frameCount = 0;
       }
-    this.setWindowCount(1);
+    this.setWindowCount(this.speed.value);
     this.physics.advanceTimeStep({
       ship: this.ship,
       otherBodies: this.otherObjects,
@@ -128,13 +128,13 @@ export class GameEngine {
   }
   setWindowCount(value: number, windowMax?: number) {
     if(windowMax) this.windowMax = windowMax;
-    if (value === 0) this.windowCount = 0;
-    if(this.windowCount === this.windowMax) {
+    if (Number(value) === 0 && !windowMax) this.windowCount = 0;
+    if(this.windowCount > this.windowMax) {
       this.windowMax = 0;
       this.windowCount = 0;
       return;
     }
-    this.windowCount = this.windowCount + value;
+    if(this.windowMax) this.windowCount = this.windowCount + Number(value);
   }
 
 }
