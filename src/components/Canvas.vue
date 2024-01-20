@@ -178,7 +178,7 @@ const shipAndThrusterCtx = computed(() => {
   return ctx;
 });
 const currentReferenceBody = computed(() => {
-  return store.initialState.otherBodies.find((el) => el.name === store.referenceBody);
+  return store.initialState!.otherBodies.find((el) => el.name === store.referenceBody);
 
 });
 
@@ -216,12 +216,6 @@ const passedTrajectoryEnd = ref(false);
 watch(computedTrajectoryData, () => {
   passedTrajectoryEnd.value = true;
 })
-
-watch(props.ship?.position!, () => {
-  animationFrameId = requestAnimationFrame(draw);
-
-})
-
 
 function draw() {
   const canvas = myCanvas.value;
@@ -375,6 +369,7 @@ onMounted(() => {
     fireImageLoaded.value = true;
   };
   fireImage.src = fireSvg;
+  draw();
 });
 
 onUnmounted(() => {
