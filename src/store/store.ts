@@ -3,7 +3,8 @@ import { Vector2D } from '../interfaces';
 import { Ship } from '../entitites/ship';
 import { Planet } from '../entitites/planet';
 import { Scenario } from '../interfaces';
-import { CelestialBody } from '../entitites/celestialBody';
+import { GameEngine } from '../entitites/GameEngine';
+import { Physics } from '../entitites/physics';
 const earthRadius = 6_371_000;
 const massStation = 420000;
 const distanceFromCenterOfEarth = 6_791_000;
@@ -102,6 +103,9 @@ export const useMainStore = defineStore('main', {
     initialState: null as Scenario|null,
     scenarioOptions: [...initialState],
     referenceBody: null as string|null,
+    speed: 1,
+    gameEngine: {} as GameEngine,
+    controls: new Set() as Set<string>
   }),
   actions: {
     setTrajectoryData(data: Vector2D[]) {
@@ -122,7 +126,12 @@ export const useMainStore = defineStore('main', {
       }
     },
 
+    setSpeed(value: number) {
+      this.speed = value;
+      this.gameEngine.speed = this.speed;
+    },
     resetScenario() {
+      this.gameEngine.stop();
       const currentScenarioId = this.initialState?.id;
       const originalScenario = originalScenarios.find(scenario => scenario.id === currentScenarioId);
       if (originalScenario) {
@@ -130,6 +139,7 @@ export const useMainStore = defineStore('main', {
       }
     },
     initializeScenario(id: number) {
+      if(this.gameEngine && this.gameEngine.ship) this.gameEngine.stop();
       const scenario = this.scenarioOptions.find((el) => el.id === id);
       const clonedScenario = JSON.parse(JSON.stringify(scenario));
       this.setReferenceBody(clonedScenario.referenceBody);
@@ -146,9 +156,15 @@ export const useMainStore = defineStore('main', {
           new Planet(body.position, body.mass, body.velocity, body.radius, body.name)
         )
       };
+
+      this.gameEngine = new GameEngine(this.initialState!.ship!, this.initialState!.otherBodies, this.controls, this.speed, new Physics());
+      this.gameEngine.start();
     },
     setReferenceBody(value: string) {
       this.referenceBody = value;
+    },
+    setControls(keysPressed: Set<string>) {
+      this.controls = keysPressed;
     }
     },
 });

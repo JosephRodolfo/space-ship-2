@@ -1,14 +1,12 @@
 import { Ship } from "./ship";
 import { Planet } from "./planet";
 import { Physics } from "./physics";
-import { Ref } from "vue";
 
 export class GameEngine {
   ship: Ship;
   otherObjects: Planet[];
   keysPressed: Set<string>;
-  speed: Ref<number>
-
+  speed: number;
   frameRef: number | null;
   thrustIntervalX: number | null;
   thrustIntervalY: number | null;
@@ -22,8 +20,8 @@ export class GameEngine {
     ship: Ship,
     otherObjects: Planet[],
     keysPressed: Set<string>,
-    speed:  Ref<number>,
-    physics: Physics
+    speed: number,
+    physics: Physics,
   ) {
     this.ship = ship;
     this.otherObjects = otherObjects;
@@ -80,12 +78,12 @@ export class GameEngine {
         }
         this.frameCount = 0;
       }
-    this.setWindowCount(this.speed.value);
+    this.setWindowCount(this.speed);
     this.physics.advanceTimeStep({
       ship: this.ship,
       otherBodies: this.otherObjects,
       thrustForce: totalForce,
-      timeStep: this.speed.value,
+      timeStep: this.speed,
       callback: ({ newAcceleration, newVelocity, newPosition, otherBodiesState }) => {
         this.otherObjects = otherBodiesState.map((state) => {
           const body = this.otherObjects.find(({ name }) => name === state.name);

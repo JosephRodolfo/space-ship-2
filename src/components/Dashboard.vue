@@ -9,8 +9,8 @@
   </p>
   <p>Angle: {{ (currentScenario!.ship.rotationAngle * (180 / Math.PI)).toFixed(0) }}</p>
   <div class="speed-controls">
-    <input type="range" :min="speedSettings.min" :max="speedSettings.max" :step="1" v-model="speed" />
-    <span>{{ speed }}</span>
+    <input type="range" :min="speedSettings.min" :max="speedSettings.max" :step="1" @input="setSpeed"/>
+    <span>{{ mainStore.speed }}</span>
     <button @click="handlePause">Pause</button>
     <button @click="initCalculateTrajectory"> calculate Trajectory</button>
   </div>
@@ -29,7 +29,7 @@
       :ship="currentScenario!.ship"
       :other-objects="currentScenario!.otherBodies"
       :background="true"
-      :draw-trajectory="!!gameEngine.windowCount"
+      :draw-trajectory="!!mainStore.gameEngine.windowCount"
     ></CanvasWithControls>
     <CanvasWithControls
       :magnificationOpts="{
@@ -42,17 +42,16 @@
       :other-objects="currentScenario!.otherBodies"
       :background="false"
       :canvas-size="canvasSize"
-      :draw-trajectory="!!gameEngine.windowCount"
+      :draw-trajectory="!!mainStore.gameEngine.windowCount"
     ></CanvasWithControls>
   </div>
 </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref, computed, watch } from "vue";
+import { onMounted, onUnmounted, ref, computed } from "vue";
 import ScenarioSelector from "./ScenarioSelector.vue";
 import { useKeyPress } from "../composables/useKeyPress";
-import { GameEngine } from "../entitites/GameEngine";
 import CanvasWithControls from "./CanvasWithControls.vue";
 import { useMainStore } from "../store/store";
 import { Physics } from "../entitites/physics";
@@ -69,7 +68,6 @@ const magnificationSettings = computed(() => {
   return currentScenario.value!.magnificationSettings;
 });
 const mainStore = useMainStore();
-let gameEngine: GameEngine;
 const canvasSize = computed(() => ({
   x: 250,
   y: 250,
@@ -80,9 +78,15 @@ const currentReferenceBody = computed(() => {
   return mainStore.initialState.otherBodies.find((el) => el.name === mainStore.referenceBody);
 })
 
+function setSpeed(event: Event) {
+  const inputEvent = event as InputEvent;
+  const inputElement = inputEvent.target as HTMLInputElement;
+  mainStore.setSpeed(Number(inputElement.value));
+}
+
 function initCalculateTrajectory() {
   if (!currentScenario.value) return;
-  gameEngine.setWindowCount(0, 1000)
+  mainStore.gameEngine.setWindowCount(0, 1000)
     const relativeVelocity = 
     currentReferenceBody.value 
     ? physics.calculateRelativeVelocity(currentScenario.value.ship.velocity, currentReferenceBody.value!.velocity)
@@ -107,7 +111,7 @@ function initCalculateTrajectory() {
         };
       }
     );
-    gameEngine.setWindowCount(1, 1000);
+    mainStore.gameEngine.setWindowCount(1, 1000);
     worker.postMessage({
       shipData: {
         position,
@@ -115,7 +119,7 @@ function initCalculateTrajectory() {
         acceleration,
         mass: currentScenario.value.ship.mass,
       },
-      timeStep: Number(speed.value) ? Number(speed.value) : 1,
+      timeStep: Number(mainStore.speed) ? Number(mainStore.speed) : 1,
       otherBodies: otherMapped,
       window: [0, 1000],
     });
@@ -131,27 +135,11 @@ function initCalculateTrajectory() {
 //   }
 // );
 
-const initializeGameEngine = () => {
-  if (gameEngine) {
-    gameEngine.stop();
-  }
-  gameEngine = new GameEngine(
-    currentScenario.value!.ship,
-    currentScenario.value!.otherBodies,
-    keysPressed,
-    speed,
-    new Physics()
-  );
-  gameEngine.start();
-};
-watch(currentScenario, () => {
-  initializeGameEngine();
-});
 
 let worker: Worker;
 onMounted(() => {
+  mainStore.setControls(keysPressed);
   mainStore.initializeScenario(1);
-  initializeGameEngine();  
   worker = new Worker(
     new URL("../workers/trajectoryWorker.ts", import.meta.url),
     { type: "module" }
@@ -171,7 +159,7 @@ onUnmounted(() => {
   worker.terminate();
   window.removeEventListener("keydown", onKeydown);
   window.removeEventListener("keyup", onKeyup);
-  gameEngine.stop();
+  mainStore.gameEngine.stop();
 });
 function handlePause() {
   mainStore.setPause();

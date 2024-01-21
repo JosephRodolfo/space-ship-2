@@ -22,7 +22,6 @@ const mainStore = useMainStore();
 const selectedScenario = ref<number | null>(null);
 
 function selectScenario(id: number) {
-  mainStore.resetScenario();
   mainStore.setScenario(id);
   selectedScenario.value = id;
 }
