@@ -15,7 +15,6 @@ import {
   generateStarPositions,
   renderStarField,
 } from "../helpers/createBackground";
-import { Ship } from "../entitites/ship";
 import { Vector2D } from "../interfaces";
 import shipSvg from "../assets/gray-ship.svg";
 import fireSvg from "../assets/blue-fire.svg";
@@ -24,7 +23,6 @@ import { Physics } from "../entitites/physics";
 import { useMainStore } from "../store/store"; 
 
 const props = defineProps({
-  ship: Object as () => Ship,
   magnification: {
     type: Number,
     default: 1,
@@ -37,17 +35,9 @@ const props = defineProps({
     default: false,
     type: Boolean,
   },
-  drawTrajectory: {
-    default: false,
-    type: Boolean,
-  },
   canvasSize: {
     default: { x: 500, y: 500 },
     type: Object,
-  },
-  otherObjects: {
-    default: () => [],
-    type: Array as () => Planet[],
   },
   drawOtherObjects: {
     default: true,
@@ -73,6 +63,13 @@ const computedTrajectoryData = computed(() => {
   return store.trajectoryData;
 });
 
+const ship = computed(() => {
+  return store.initialState?.ship;
+})
+
+const otherObjects = computed(() => {
+  return store.initialState?.otherBodies;
+})
 
 
 function updateBackgroundPosition(
@@ -154,9 +151,9 @@ const shipAndThrusterCtx = computed(() => {
 
   offScreenCanvas.width = shipWidth;
   offScreenCanvas.height =
-    shipHeight + (props.ship!.firingThruster ? shipHeight : 0);
+    shipHeight + (ship.value!.firingThruster ? shipHeight : 0);
   if (
-    (fireImageLoaded.value, props.ship!.firingThruster && fireImage.complete)
+    (fireImageLoaded.value, ship.value!.firingThruster && fireImage.complete)
   ) {
     ctx!.save();
     ctx!.translate(shipWidth / 2, shipHeight + shipHeight / 2);
@@ -227,8 +224,8 @@ function draw() {
 
     if (props.background) {
       const velocity = currentReferenceBody.value 
-      ? physics.calculateRelativeVelocity(props.ship!.velocity, currentReferenceBody.value.velocity) 
-      : props.ship?.velocity;
+      ? physics.calculateRelativeVelocity(ship.value!.velocity, currentReferenceBody.value.velocity) 
+      : ship.value!.velocity;
       const { x: bgX, y: bgY } = updateBackgroundPosition(
         !store.pause ? velocity! : { x: 0, y: 0},
         backgroundOffset.value
@@ -265,13 +262,13 @@ function draw() {
 
     }
     if (props.drawOtherObjects) {
-      drawOtherObjects(ctx, props.otherObjects!, scaleFactor.value, 10, { x: canvasCenterX, y: canvasCenterY });
+      drawOtherObjects(ctx, otherObjects.value!, scaleFactor.value, 10, { x: canvasCenterX, y: canvasCenterY });
     }
 
     if (shipAndThrusterCtx.value) {
       ctx.save();
       ctx.translate(canvasCenterX, canvasCenterY); 
-      ctx.rotate(props.ship!.rotationAngle);
+      ctx.rotate(ship.value!.rotationAngle);
       ctx.drawImage(
         shipAndThrusterCtx.value.canvas,
         -shipSize.value.shipWidth / 2,
@@ -280,7 +277,7 @@ function draw() {
       ctx.restore();
     }
     
-    if (props.drawTrajectory && computedTrajectoryData.value.length > 0 && trajectoryCtx.value) {
+    if (store.gameEngine.windowCount && computedTrajectoryData.value.length > 0 && trajectoryCtx.value) {
     const trajectoryCanvas = trajectoryCtx.value.canvas;
     ctx.save();
     if (currentReferenceBody.value) {
@@ -288,8 +285,8 @@ function draw() {
       cumulativeX += currentReferenceBody.value!.position.y! - lastY;
     }
 
-    const offsetX = (computedTrajectoryData.value[0].x! + cumulativeX - props.ship!.position.x!) * scaleFactor.value;
-    const offsetY = (computedTrajectoryData.value[0].y! + cumulativeY - props.ship!.position.y!) * scaleFactor.value;
+    const offsetX = (computedTrajectoryData.value[0].x! + cumulativeX - ship!.value!.position.x!) * scaleFactor.value;
+    const offsetY = (computedTrajectoryData.value[0].y! + cumulativeY - ship!.value!.position.y!) * scaleFactor.value;
     const drawStartX = (trajectoryCanvas.width / 2) - offsetX - ( canvas!.width / 2);
     const drawStartY = (trajectoryCanvas.height / 2) - offsetY - (canvas!.height / 2);
     if (currentReferenceBody.value) {
@@ -327,9 +324,9 @@ function drawOtherObjects(
     // const canvasCenterX = props.canvasSize.x / 2;
     // const canvasCenterY = props.canvasSize.y / 2;
     const relativeObjX =
-      (obj.position.x! - props.ship!.position.x!) * scaleFactor + canvasCenterX!;
+      (obj.position.x! - ship!.value!.position.x!) * scaleFactor + canvasCenterX!;
     const relativeObjY =
-      (obj.position.y! - props.ship!.position.y!) * scaleFactor + canvasCenterY!;
+      (obj.position.y! - ship.value!.position.y!) * scaleFactor + canvasCenterY!;
 
     const adjustedRadius = Math.max(obj.radius * scaleFactor, minimumSize);
 

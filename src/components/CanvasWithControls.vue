@@ -23,14 +23,11 @@
 
     <div class="canvas">
       <Canvas
-        :ship="ship"
         :draw-other-objects="hideOtherObjects"
-        :other-objects="otherObjects"
         :magnification="Number(magnification)"
         :background="background"
         :canvas-size="canvasSize"
         :canvas-center-offset="canvasCenterOffset"
-        :draw-trajectory="drawTrajectory"
         @mousedown="handleMouseDown"
         @mousemove="handleMouseMove"
         @mouseup="handleMouseUp"
@@ -44,24 +41,13 @@
 import { computed, ref } from "vue";
 import MagnificationControls from "./MagnificationControls.vue";
 import Canvas from "./Canvas.vue";
-import { Ship } from "../entitites/ship";
-import { Planet } from "../entitites/planet";
 import { useMainStore } from "../store/store";
 
 const props = defineProps({
-  ship: Object as () => Ship,
   background: Boolean,
-  drawTrajectory: {
-    default: false,
-    type: Boolean,
-  },
   canvasSize: {
     default: { x: 500, y: 500 },
     type: Object,
-  },
-  otherObjects: {
-    default: () => [],
-    type: Array as () => Planet[],
   },
   magnificationOpts: {
     default: () => {},
@@ -74,6 +60,10 @@ const mainStore = useMainStore();
 const referenceBody = computed(() => {
   return mainStore.referenceBody;
 });
+
+const otherObjects = computed(() => {
+  return mainStore.initialState?.otherBodies;
+})
 
 function handleMagnificationChange(val: number) {
   magnification.value = val;

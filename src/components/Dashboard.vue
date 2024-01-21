@@ -26,10 +26,7 @@
         maxValue: magnificationSettings.map.max,
         defaultMagnification: magnificationSettings.map.default,
       }"
-      :ship="currentScenario!.ship"
-      :other-objects="currentScenario!.otherBodies"
       :background="true"
-      :draw-trajectory="!!mainStore.gameEngine.windowCount"
     ></CanvasWithControls>
     <CanvasWithControls
       :magnificationOpts="{
@@ -38,11 +35,8 @@
         maxValue: magnificationSettings.miniMap.max,
         defaultMagnification: magnificationSettings.miniMap.default,
       }"
-      :ship="currentScenario!.ship"
-      :other-objects="currentScenario!.otherBodies"
       :background="false"
       :canvas-size="canvasSize"
-      :draw-trajectory="!!mainStore.gameEngine.windowCount"
     ></CanvasWithControls>
   </div>
 </div>
