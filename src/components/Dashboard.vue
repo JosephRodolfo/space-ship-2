@@ -9,8 +9,8 @@
   </p>
   <p>Angle: {{ (currentScenario!.ship.rotationAngle * (180 / Math.PI)).toFixed(0) }}</p>
   <div class="speed-controls">
-    <input type="range" :min="speedSettings.min" :max="speedSettings.max" :step="1" @input="setSpeed"/>
-    <span>{{ mainStore.speed }}</span>
+    <input type="range" :min="speedSettings.min" :max="speedSettings.max" :step="1" :value="mainStore.gameEngine.speed" @input="setSpeed"/>
+    <span>{{ mainStore.gameEngine.speed }}</span>
     <button @click="handlePause">Pause</button>
     <button @click="initCalculateTrajectory"> calculate Trajectory</button>
   </div>
@@ -43,15 +43,13 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref, computed } from "vue";
+import { onMounted, onUnmounted, computed, watch } from "vue";
 import ScenarioSelector from "./ScenarioSelector.vue";
 import { useKeyPress } from "../composables/useKeyPress";
 import CanvasWithControls from "./CanvasWithControls.vue";
 import { useMainStore } from "../store/store";
 import { Physics } from "../entitites/physics";
-
 const { keysPressed, onKeydown, onKeyup } = useKeyPress();
-const speed = ref(1);
 const currentScenario = computed(() => {
   return mainStore.initialState;
 })
@@ -113,21 +111,29 @@ function initCalculateTrajectory() {
         acceleration,
         mass: currentScenario.value.ship.mass,
       },
-      timeStep: Number(mainStore.speed) ? Number(mainStore.speed) : 1,
+      timeStep: Number(mainStore.gameEngine.speed) ? Number(mainStore.gameEngine.speed) : 1,
       otherBodies: otherMapped,
       window: [0, 1000],
     });
 }
 
-// watch(
-//   () => currentScenario.value!.ship.firingThruster,
-//   (newVal, oldVal) => {
-//     if (newVal !== false && oldVal !== true) {
-//       return;
-//     }
-//  initCalculateTrajectory();
-//   }
-// );
+watch(
+  () => currentScenario.value?.ship.firingThruster,
+  (newVal, oldVal) => {
+    if (currentScenario.value && currentScenario.value.ship.firingThruster != null) {
+      console.log(newVal, oldVal);
+      if (newVal === false && oldVal === undefined) return;
+      if (newVal !== false && oldVal !== true) {
+        return;
+      }
+      initCalculateTrajectory();
+    }
+  },
+  {
+    immediate: true,
+  }
+);
+
 
 
 let worker: Worker;
@@ -157,11 +163,6 @@ onUnmounted(() => {
 });
 function handlePause() {
   mainStore.setPause();
-  if (mainStore.pause) {
-    speed.value = 0;
-  } else {
-    speed.value = 1;
-  }
 }
 </script>
 <style>

@@ -118,7 +118,12 @@ export const useMainStore = defineStore('main', {
         this.error = data;
     },
     setPause() {
-      this.pause = !this.pause;
+      if (this.gameEngine.speed === 0) {
+        this.setSpeed(this.speed);
+      } else {
+        this.speed = this.gameEngine.speed;
+        this.setSpeed(0);
+      }
     },
     setScenario(id: number) {
       if (id) {
@@ -127,8 +132,7 @@ export const useMainStore = defineStore('main', {
     },
 
     setSpeed(value: number) {
-      this.speed = value;
-      this.gameEngine.speed = this.speed;
+      this.gameEngine.speed = value;
     },
     resetScenario() {
       this.gameEngine.stop();

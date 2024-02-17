@@ -348,17 +348,30 @@ onMounted(() => {
     props.canvasSize.y,
     props.canvasSize.x
   );
+
+  let imagesLoaded = 0;
+  const totalImages = 2;
+
+  const checkImagesLoaded = () => {
+    imagesLoaded++;
+    if (imagesLoaded === totalImages) {
+      draw();
+    }
+  };
+
   shipImage.onload = () => {
     shipImageLoaded.value = true;
+    checkImagesLoaded();
   };
   shipImage.src = shipSvg;
 
   fireImage.onload = () => {
     fireImageLoaded.value = true;
+    checkImagesLoaded();
   };
   fireImage.src = fireSvg;
-  draw();
 });
+
 
 onUnmounted(() => {
   cancelAnimationFrame(animationFrameId);
