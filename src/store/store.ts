@@ -131,6 +131,10 @@ export const useMainStore = defineStore('main', {
     loading: false,
     error: null,
     pause: false,
+    trajectorySettings: {
+      window: 1000,
+      granularity: 10,
+    },
     initialState: null as Scenario|null,
     scenarioOptions: [...initialState],
     referenceBody: null as string|null,
@@ -161,7 +165,10 @@ export const useMainStore = defineStore('main', {
         this.initializeScenario(id);
       }
     },
-
+    setTrajectorySettings({ window, granularity }: { window: number; granularity: number }) {
+      if(window) this.trajectorySettings.window = window;
+      if(granularity) this.trajectorySettings.granularity = granularity;
+   },
     setSpeed(value: number) {
       this.gameEngine.speed = value;
     },
