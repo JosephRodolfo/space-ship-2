@@ -78,7 +78,6 @@ function setSpeed(event: Event) {
 
 function initCalculateTrajectory() {
   if (!currentScenario.value) return;
-  mainStore.gameEngine.setWindowCount(0, 1000)
     const relativeVelocity = 
     currentReferenceBody.value 
     ? physics.calculateRelativeVelocity(currentScenario.value.ship.velocity, currentReferenceBody.value!.velocity)
@@ -103,7 +102,8 @@ function initCalculateTrajectory() {
         };
       }
     );
-    mainStore.gameEngine.setWindowCount(1, 1000);
+    const window = 1000;
+    mainStore.gameEngine.setWindowCount(1, window);
     worker.postMessage({
       shipData: {
         position,
@@ -113,7 +113,7 @@ function initCalculateTrajectory() {
       },
       timeStep: Number(mainStore.gameEngine.speed) ? Number(mainStore.gameEngine.speed) : 1,
       otherBodies: otherMapped,
-      window: [0, 1000],
+      window: [0, window],
     });
 }
 
@@ -121,7 +121,6 @@ watch(
   () => currentScenario.value?.ship.firingThruster,
   (newVal, oldVal) => {
     if (currentScenario.value && currentScenario.value.ship.firingThruster != null) {
-      console.log(newVal, oldVal);
       if (newVal === false && oldVal === undefined) return;
       if (newVal !== false && oldVal !== true) {
         return;
@@ -139,7 +138,7 @@ watch(
 let worker: Worker;
 onMounted(() => {
   mainStore.setControls(keysPressed);
-  mainStore.initializeScenario(1);
+  mainStore.initializeScenario(4);
   worker = new Worker(
     new URL("../workers/trajectoryWorker.ts", import.meta.url),
     { type: "module" }

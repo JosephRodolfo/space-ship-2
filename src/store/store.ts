@@ -6,15 +6,19 @@ import { Scenario } from '../interfaces';
 import { GameEngine } from '../entitites/GameEngine';
 import { Physics } from '../entitites/physics';
 const earthRadius = 6_371_000;
+const marsRadius = 3.3895e6;
 const massStation = 420000;
 const distanceFromCenterOfEarth = 6_791_000;
 const earthMass = 5.972e+24;
 const sunMass = 1.989e30; 
+const marsMass = 6.39e+23;
 const sunRadius = 695700000; 
 const earthToSunDistance = 149.6e9; 
 const stationOrbitalVelocity = -7661.011873789845;
 const earthOrbitalVelocity = 29_780;
+const marsOrbitalVelocity = 24_077;
 
+const marsToSunDistance = 227.9e9;
 const initialState: Scenario[] = [
   {
     id: 1,
@@ -86,6 +90,33 @@ const initialState: Scenario[] = [
       miniMap: {
         min: 1,
         max: 1214660006 * 2,
+        default: 407143,
+      }
+    }
+  },
+  {
+    id: 4,
+    name: 'Planet Earth with Sun and Mars',
+    ship: new Ship('ship', massStation, { x: 0, y: 0 }, { x: stationOrbitalVelocity + earthOrbitalVelocity, y: 0 }, 100),
+    otherBodies: [
+      new Planet({ x: 0, y: distanceFromCenterOfEarth }, earthMass, { x: earthOrbitalVelocity, y: 0 }, earthRadius, 'earth'),
+      new Planet({ x: 0, y: marsToSunDistance }, marsMass, { x: marsOrbitalVelocity, y: 0 }, marsRadius, 'mars'),
+      new Planet({ x: 0, y: -earthToSunDistance }, sunMass, { x: 0, y: 0 }, sunRadius, 'sun'),
+    ],
+    speedSettings: {
+      min: 1,
+      max: 5000,
+    },
+    referenceBody: 'earth',
+    magnificationSettings: {
+      map: {
+        min: 1,
+        max: 10000,
+        default: 6000,
+      },
+      miniMap: {
+        min: 1,
+        max: 1214660006 * 7,
         default: 407143,
       }
     }

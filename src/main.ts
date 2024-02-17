@@ -8,10 +8,10 @@ import { createRouter, createWebHistory } from 'vue-router';
 const routes = [
     { path: '/', component: Dashboard },
     { path: '/dashboard', component: Dashboard },
-    { path: '/credits', component: Credits }
+    { path: '/credits', component: Credits },
   ];
   const router = createRouter({
-    history: createWebHistory(),
+    history: createWebHistory('/space-ship-2/'),
     routes
   });
 const app = createApp(App);

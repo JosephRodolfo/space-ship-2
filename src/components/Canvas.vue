@@ -332,7 +332,16 @@ function drawOtherObjects(
 
     ctx.beginPath();
     ctx.arc(relativeObjX, relativeObjY, adjustedRadius, 0, 2 * Math.PI);
-    const color = obj.name === 'earth' ? 'blue' : 'yellow';
+    let color;
+    if (obj.name === 'earth') {
+      color = 'blue';
+    } else if (obj.name === 'mars') {
+      color = 'red';
+    }else {
+      color = 'yellow';
+
+    }
+
     ctx.fillStyle = color;
     ctx.fill();
   });
