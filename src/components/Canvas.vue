@@ -285,6 +285,7 @@ function draw() {
     const trajectoryCanvas = trajectoryCtx.value.canvas;
     ctx.save();
     if (currentReferenceBody.value) {
+      console.log(currentReferenceBody.value);
       cumulativeX += currentReferenceBody.value!.position.x! - lastX;
       cumulativeX += currentReferenceBody.value!.position.y! - lastY;
     }

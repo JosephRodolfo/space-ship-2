@@ -1,5 +1,5 @@
 <template>
-  <div class="magnification-controls control-element-border">
+  <div class="magnification-controls control-element-border button">
     <div class="tiles">
       <button v-for="(value, index) in tileValues" :key="index" class="tile" :class="['button', {selected: selectedTile === value * multiplier}]" @click="selectTile(value * multiplier)">
         {{ (value * multiplier).toLocaleString() }}
@@ -41,9 +41,9 @@ function selectTile(value: number) {
 <style>
 .magnification-controls {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  gap: 10px;
+  gap: 5px;
 }
 
 .tiles {

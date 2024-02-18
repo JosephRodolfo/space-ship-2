@@ -124,7 +124,7 @@ const initialState: Scenario[] = [
   {
     id: 5,
     name: 'Ship Orbiting Sun',
-    ship: new Ship('ship', massStation, { x: 0, y: -earthToSunDistance }, { x: earthOrbitalVelocity, y: 0 }, 100),
+    ship: new Ship('ship', massStation, { x: 0, y: earthToSunDistance }, { x: earthOrbitalVelocity, y: 0 }, 100),
     otherBodies: [
       new Planet({ x: 0, y: 0 }, sunMass, { x: 0, y: 0 }, sunRadius, 'sun'),
     ],

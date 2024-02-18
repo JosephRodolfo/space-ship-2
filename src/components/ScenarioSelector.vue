@@ -1,6 +1,6 @@
 <template>
-  <div class="scenario-selector">
-    <p>Scenario Selector</p>
+  <div class="scenario-selector button">
+    <!-- <p>Scenario Selector</p> -->
     <div class="selector-links">
       <button
         v-for="scenario in mainStore.scenarioOptions"

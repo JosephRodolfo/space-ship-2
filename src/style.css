@@ -57,6 +57,7 @@ button:focus-visible {
 }
 .selected-button {
   border-color: #646cff !important;
+  /* color: white; */
 }
 
 .card {
@@ -86,8 +87,11 @@ button:focus-visible {
 .button {
   padding: 10px;
   border: 1px solid #ccc;
-  cursor: pointer;
   border-radius:0;
   background-color: transparent;
 }
 
+button.button {
+  cursor: pointer;
+
+}

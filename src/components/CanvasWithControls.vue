@@ -1,9 +1,9 @@
 <template>
   <div class="canvas-with-controls">
     <div class="controls">
-      <button class="button" @click="toggleOtherObjects">
+      <!-- <button class="button" @click="toggleOtherObjects">
         Hide other: {{ !hideOtherObjects }}
-      </button>
+      </button> -->
       <MagnificationControls
         :magnificationOpts="magnificationOpts"
         @input="handleMagnificationChange"
@@ -69,9 +69,9 @@ function handleMagnificationChange(val: number) {
   magnification.value = val;
 }
 
-function toggleOtherObjects() {
-  hideOtherObjects.value = !hideOtherObjects.value;
-}
+// function toggleOtherObjects() {
+//   hideOtherObjects.value = !hideOtherObjects.value;
+// }
 function selectReferenceBody(value: string) {
   mainStore.setReferenceBody(value);
 }

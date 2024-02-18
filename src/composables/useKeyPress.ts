@@ -5,7 +5,7 @@ export function useKeyPress() {
   
   const onKeydown = (event: KeyboardEvent) => {
     const key = event.key.toLowerCase();
-    if(['w', 'a', 's', 'd'].includes(key)) {
+    if(['w', 'a', 's', 'd', 'j'].includes(key)) {
       keysPressed.add(key.toLowerCase());
     }
   };

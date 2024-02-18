@@ -1,25 +1,28 @@
 <template>
   <div v-if="currentScenario">
   <ScenarioSelector></ScenarioSelector>
-  <p>Velocity X: {{ currentScenario!.ship.velocity.x!.toFixed(2) }}</p>
-  <p>Velocity Y: {{ currentScenario!.ship.velocity.y!.toFixed(2) }}</p>
-  <p>
+  <div class="speed-controls">
+  <p class="button">Velocity X: {{ currentScenario!.ship.velocity.x!.toFixed(2) }}</p>
+  <p class="button">Velocity Y: {{ currentScenario!.ship.velocity.y!.toFixed(2) }}</p>
+  <p class="button">
     Accleration X: {{ currentScenario!.ship.acceleration.x!.toFixed(2) }} Accleration Y:
     {{ currentScenario!.ship.acceleration.y?.toFixed(2) }}
   </p>
-  <p>Angle: {{ (currentScenario!.ship.rotationAngle * (180 / Math.PI)).toFixed(0) }}</p>
-  <div class="speed-controls">
+  <p class="button">Angle: {{ (currentScenario!.ship.rotationAngle * (180 / Math.PI)).toFixed(0) }}</p>
+  <div class="button">
     <input type="range" :min="speedSettings.min" :max="speedSettings.max" :step="1" :value="mainStore.gameEngine.speed" @input="setSpeed"/>
-    <span>{{ mainStore.gameEngine.speed }}</span>
+    
+    <span class="button">Speed: {{ mainStore.gameEngine.speed }}</span>
+  </div>
     <button class="button" @click="handlePause">Pause</button>
     <button class="button" @click="initCalculateTrajectory"> calculate Trajectory</button>
-  </div>
-  <p>
+  <p class="button">
     Position: {{ currentScenario!.ship.position.x!.toFixed(2) }},
     {{ currentScenario!.ship.position.y!.toFixed(2) }}
   </p>
-  <p>Trajectory storage: {{ mainStore.trajectoryData.length }}</p>
-  <p>Total chunk: {{ mainStore.trajectorySettings.totalChunks }}</p>
+  <p class="button">Trajectory storage: {{ mainStore.trajectoryData.length }}</p>
+  <p class="button">Total chunk: {{ mainStore.trajectorySettings.totalChunks }}</p>
+</div>
 
   <TrajectoryControls></TrajectoryControls>
   <div class="canvas-container">
@@ -47,7 +50,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted, computed, watch } from "vue";
+import { onMounted, onUnmounted, computed, watch, watchEffect } from "vue";
 import ScenarioSelector from "./ScenarioSelector.vue";
 import { useKeyPress } from "../composables/useKeyPress";
 import CanvasWithControls from "./CanvasWithControls.vue";
@@ -63,6 +66,12 @@ const speedSettings = computed(() => {
 })
 const magnificationSettings = computed(() => {
   return currentScenario.value!.magnificationSettings;
+});
+watchEffect(() => {
+  if (keysPressed.has('j')) {
+    initCalculateTrajectory();
+    keysPressed.delete('j');
+  }
 });
 const mainStore = useMainStore();
 const canvasSize = computed(() => ({
@@ -195,5 +204,6 @@ function handlePause() {
   display: flex;
   flex-direction: row;
   gap: 5px;
+  flex-wrap: wrap;
 }
 </style>
