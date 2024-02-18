@@ -11,13 +11,17 @@
   <div class="speed-controls">
     <input type="range" :min="speedSettings.min" :max="speedSettings.max" :step="1" :value="mainStore.gameEngine.speed" @input="setSpeed"/>
     <span>{{ mainStore.gameEngine.speed }}</span>
-    <button @click="handlePause">Pause</button>
-    <button @click="initCalculateTrajectory"> calculate Trajectory</button>
+    <button class="button" @click="handlePause">Pause</button>
+    <button class="button" @click="initCalculateTrajectory"> calculate Trajectory</button>
   </div>
   <p>
     Position: {{ currentScenario!.ship.position.x!.toFixed(2) }},
     {{ currentScenario!.ship.position.y!.toFixed(2) }}
   </p>
+  <p>Trajectory storage: {{ mainStore.trajectoryData.length }}</p>
+  <p>Total chunk: {{ mainStore.trajectorySettings.totalChunks }}</p>
+
+  <TrajectoryControls></TrajectoryControls>
   <div class="canvas-container">
     <CanvasWithControls
       :magnificationOpts="{
@@ -47,6 +51,7 @@ import { onMounted, onUnmounted, computed, watch } from "vue";
 import ScenarioSelector from "./ScenarioSelector.vue";
 import { useKeyPress } from "../composables/useKeyPress";
 import CanvasWithControls from "./CanvasWithControls.vue";
+import TrajectoryControls from "./TrajectoryControls.vue";
 import { useMainStore } from "../store/store";
 import { Physics } from "../entitites/physics";
 const { keysPressed, onKeydown, onKeyup } = useKeyPress();
@@ -78,6 +83,14 @@ function setSpeed(event: Event) {
 
 function initCalculateTrajectory() {
   if (!currentScenario.value) return;
+    mainStore.setTrajectorySettings({ loadingTrajectory: true });
+    mainStore.setTrajectorySettings({ chunksReceived: 0 })
+
+  const totalRange = mainStore.trajectorySettings.window;
+  const totalChunks = Math.ceil(totalRange / 1000); // Assuming chunkSize is defined
+  
+  mainStore.setTrajectorySettings({ totalChunks }); // Store totalChunks for later reference
+  
     const relativeVelocity = 
     currentReferenceBody.value 
     ? physics.calculateRelativeVelocity(currentScenario.value.ship.velocity, currentReferenceBody.value!.velocity)
@@ -102,7 +115,8 @@ function initCalculateTrajectory() {
         };
       }
     );
-    const window = 1000;
+    const window = mainStore.trajectorySettings.window;
+    let granularityFactor = Math.ceil(window / mainStore.trajectorySettings.granularity);
     mainStore.gameEngine.setWindowCount(1, window);
     worker.postMessage({
       shipData: {
@@ -111,6 +125,8 @@ function initCalculateTrajectory() {
         acceleration,
         mass: currentScenario.value.ship.mass,
       },
+      totalChunks,
+      granularityFactor,
       timeStep: Number(mainStore.gameEngine.speed) ? Number(mainStore.gameEngine.speed) : 1,
       otherBodies: otherMapped,
       window: [0, window],
@@ -138,7 +154,7 @@ watch(
 let worker: Worker;
 onMounted(() => {
   mainStore.setControls(keysPressed);
-  mainStore.initializeScenario(4);
+  mainStore.initializeScenario(5);
   worker = new Worker(
     new URL("../workers/trajectoryWorker.ts", import.meta.url),
     { type: "module" }
@@ -148,6 +164,12 @@ onMounted(() => {
   worker.onmessage = (event) => {
     const { chunk } = event.data;
     mainStore.setTrajectoryData([...mainStore.trajectoryData, ...chunk]);
+    mainStore.setTrajectorySettings({ chunksReceived: mainStore.trajectorySettings.chunksReceived + 1 });
+    // console.log(mainStore.trajectorySettings.chunksReceived, mainStore.trajectorySettings.totalChunks)
+    // if (mainStore.trajectorySettings.chunksReceived >= mainStore.trajectorySettings.totalChunks) {
+      mainStore.setTrajectorySettings({ loadingTrajectory: false });
+    // }
+
   };
   worker.onerror = (error) => {
     console.error("Worker error:", error);
@@ -168,5 +190,10 @@ function handlePause() {
 .canvas-container {
   display: flex;
   flex-direction: row;
+}
+.speed-controls {
+  display: flex;
+  flex-direction: row;
+  gap: 5px;
 }
 </style>

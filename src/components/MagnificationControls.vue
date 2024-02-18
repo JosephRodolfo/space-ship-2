@@ -1,5 +1,5 @@
 <template>
-  <div class="magnification-controls">
+  <div class="magnification-controls control-element-border">
     <input type="range" :min="magnificationOpts.minValue" :max="magnificationOpts.maxValue" :step="magnificationOpts.stepValue" v-model="magnification" @input="emitInput" />
     <span>{{ roundedMagnification.toFixed(1) }}</span>
   </div>

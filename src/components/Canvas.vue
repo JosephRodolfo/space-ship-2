@@ -21,6 +21,7 @@ import fireSvg from "../assets/blue-fire.svg";
 import { Planet } from "../entitites/planet";
 import { Physics } from "../entitites/physics";
 import { useMainStore } from "../store/store"; 
+import loadingSvg from '../assets/loading.svg';
 
 const props = defineProps({
   magnification: {
@@ -54,11 +55,14 @@ const backgroundOffset = ref({ x: 0, y: 0 });
 const starBackgroundSize = 1000;
 const shipImage = new Image();
 const fireImage = new Image();
+const loadingIcon = new Image();
 const stars = ref<Vector2D[]>([]);
 const shipImageLoaded = ref(false);
 const fireImageLoaded = ref(false);
+const loadingIconLoaded = ref(false);
 const physics = new Physics();
 const store = useMainStore();
+let loadingIconRotationAngle = 0;
 const computedTrajectoryData = computed(() => {
   return store.trajectoryData;
 });
@@ -217,7 +221,7 @@ function draw() {
   if (ctx) {
     const canvasCenterX = props.canvasSize.x / 2 + props.canvasCenterOffset.x!;
     const canvasCenterY = props.canvasSize.y / 2 + props.canvasCenterOffset.y!;
-  
+
 
   if (ctx && starBackgroundCtx) {
     ctx.clearRect(0, 0, canvas!.width, canvas!.height);
@@ -308,9 +312,28 @@ function draw() {
     ctx.restore();
   }
 
+  if (store.trajectorySettings.loadingTrajectory) {
+  drawLoadingIcon(ctx, canvas!.width, canvas!.height)
+  }
+
 }
   animationFrameId = requestAnimationFrame(draw);
 }
+function drawLoadingIcon(ctx: CanvasRenderingContext2D, canvasCenterX: number, canvasCenterY: number) {
+  if (!loadingIconLoaded.value || !loadingIcon.complete) return;
+  ctx.save();
+  ctx.translate(canvasCenterX / 2, canvasCenterY / 2);
+  ctx.rotate(loadingIconRotationAngle);
+  const iconSize = 50; 
+  ctx.drawImage(loadingIcon, -iconSize / 2, -iconSize / 2, iconSize, iconSize);
+  loadingIconRotationAngle += .01;
+  if (store.trajectorySettings.chunksReceived === 0) {
+    loadingIconRotationAngle = 0;
+  }
+  ctx.restore();
+}
+
+
 
 function drawOtherObjects(
   ctx: CanvasRenderingContext2D,
@@ -359,7 +382,7 @@ onMounted(() => {
   );
 
   let imagesLoaded = 0;
-  const totalImages = 2;
+  const totalImages = 3;
 
   const checkImagesLoaded = () => {
     imagesLoaded++;
@@ -379,6 +402,11 @@ onMounted(() => {
     checkImagesLoaded();
   };
   fireImage.src = fireSvg;
+  loadingIcon.onload = () => {
+    loadingIconLoaded.value = true;
+    checkImagesLoaded();
+  };
+  loadingIcon.src = loadingSvg;
 });
 
 

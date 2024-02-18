@@ -46,6 +46,7 @@ button {
   background-color: #1a1a1a;
   cursor: pointer;
   transition: border-color 0.25s;
+
 }
 button:hover {
   border-color: #646cff;
@@ -55,8 +56,7 @@ button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 .selected-button {
-  background-color: #646cff; 
-  color: white;
+  border-color: #646cff !important;
 }
 
 .card {
@@ -82,3 +82,12 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+.button {
+  padding: 10px;
+  border: 1px solid #ccc;
+  cursor: pointer;
+  border-radius:0;
+  background-color: transparent;
+}
+

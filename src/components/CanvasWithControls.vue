@@ -1,19 +1,19 @@
 <template>
   <div class="canvas-with-controls">
     <div class="controls">
-      <button @click="toggleOtherObjects">
+      <button class="button" @click="toggleOtherObjects">
         Hide other: {{ !hideOtherObjects }}
       </button>
       <MagnificationControls
         :magnificationOpts="magnificationOpts"
         @input="handleMagnificationChange"
       ></MagnificationControls>
-      <button @click="recenterCanvas">Recenter</button>
+      <button class="button" @click="recenterCanvas">Recenter</button>
       <div class="reference-body-buttons">
         <button
           v-for="body in otherObjects"
           :key="body.name"
-          :class="{ 'selected-button': referenceBody === body.name }"
+          :class="['button', { 'selected-button': referenceBody === body.name }]"
           @click="selectReferenceBody(body.name)"
         >
           {{ body.name }}
@@ -110,5 +110,10 @@ function handleMouseUp() {
 .canvas-with-controls {
   display: flex;
   flex-direction: column;
+}
+.reference-body-buttons {
+  display: flex;
+  flex-direction: row;
+  gap: 5px;
 }
 </style>

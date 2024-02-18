@@ -121,6 +121,31 @@ const initialState: Scenario[] = [
       }
     }
   },
+  {
+    id: 5,
+    name: 'Ship Orbiting Sun',
+    ship: new Ship('ship', massStation, { x: 0, y: -earthToSunDistance }, { x: earthOrbitalVelocity, y: 0 }, 100),
+    otherBodies: [
+      new Planet({ x: 0, y: 0 }, sunMass, { x: 0, y: 0 }, sunRadius, 'sun'),
+    ],
+    speedSettings: {
+      min: 1,
+      max: 100000,
+    },
+    referenceBody: 'earth',
+    magnificationSettings: {
+      map: {
+        min: 1,
+        max: 10000,
+        default: 6000,
+      },
+      miniMap: {
+        min: 1,
+        max: 1214660006 * 2,
+        default: 407143,
+      }
+    }
+  },
 ]
 
 const originalScenarios: Scenario[] = JSON.parse(JSON.stringify(initialState));
@@ -133,7 +158,10 @@ export const useMainStore = defineStore('main', {
     pause: false,
     trajectorySettings: {
       window: 1000,
-      granularity: 10,
+      granularity: 50,
+      loadingTrajectory: false,
+      totalChunks: 0,
+      chunksReceived: 0,
     },
     initialState: null as Scenario|null,
     scenarioOptions: [...initialState],
@@ -165,9 +193,13 @@ export const useMainStore = defineStore('main', {
         this.initializeScenario(id);
       }
     },
-    setTrajectorySettings({ window, granularity }: { window: number; granularity: number }) {
-      if(window) this.trajectorySettings.window = window;
-      if(granularity) this.trajectorySettings.granularity = granularity;
+    setTrajectorySettings({ window, granularity, chunksReceived, totalChunks, loadingTrajectory }: { loadingTrajectory?: boolean; window?: number; granularity?: number; chunksReceived?: number; totalChunks?: number }) {
+      if(typeof loadingTrajectory === 'boolean') this.trajectorySettings.loadingTrajectory = loadingTrajectory;
+      if(window || window === 0) this.trajectorySettings.window = window;
+      if(granularity || granularity === 0) this.trajectorySettings.granularity = granularity;
+      if(chunksReceived || chunksReceived === 0) this.trajectorySettings.chunksReceived = chunksReceived;
+      if(totalChunks || totalChunks === 0) this.trajectorySettings.totalChunks = totalChunks;
+
    },
     setSpeed(value: number) {
       this.gameEngine.speed = value;

@@ -5,12 +5,12 @@
       <button
         v-for="scenario in mainStore.scenarioOptions"
         :key="scenario.id"
-        :class="{ 'selected-button': selectedScenario === scenario.id }"
+        :class="['button', { 'selected-button': selectedScenario === scenario.id }]"
         @click="selectScenario(scenario.id)"
       >
         {{ scenario.name }}
       </button>
-      <button @click="resetScenario">Reset</button>
+      <button class="button" @click="resetScenario">Reset</button>
     </div>
   </div>
 </template>
@@ -37,5 +37,10 @@ function resetScenario() {
   display: flex;
   flex-direction: column;
   align-items: center;
+}
+.selector-links {
+  display: flex;
+  flex-direction: row;
+  gap: 5px;
 }
 </style>
