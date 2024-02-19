@@ -6,7 +6,7 @@
       </button>
     </div>
     <div class="slider-container">
-      <input type="range" min="1" max="5" step=".5" v-model="multiplier" />
+      <input type="range" min="1" max="10" step=".25" v-model="multiplier" />
       <span>Multiplier: x{{ multiplier }}</span>
     </div>
     <!-- Granularity Slider -->

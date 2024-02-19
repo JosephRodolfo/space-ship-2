@@ -3,6 +3,7 @@ import { Planet } from "../entitites/planet";
 export interface Vector2D {
     x?: number;
     y?: number;
+    index?: number;
 }
 export interface Scenario {
   id: number,

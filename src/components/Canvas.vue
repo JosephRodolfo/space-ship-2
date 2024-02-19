@@ -94,10 +94,10 @@ function updateBackgroundPosition(
 }
 
 let animationFrameId: number;
-let lastX = 0;
-let lastY = 0
-let cumulativeX = 0;
-let cumulativeY = 0;
+// let lastX = 0;
+// let lastY = 0
+// let cumulativeX = 0;
+// let cumulativeY = 0;
 const starBackgroundCtx = computed(() => {
   return renderStarField(
     props.canvasSize.x,
@@ -183,22 +183,25 @@ const currentReferenceBody = computed(() => {
 
 });
 
+const pointsToDraw = computed(() => {
+  return computedTrajectoryData.value.filter((el) => el.index! > store.gameEngine.windowCount);
+
+})
+
 
 const trajectoryCtx = computed(() => {
-  cumulativeX = 0;
-  cumulativeY = 0;
+  // cumulativeX = 0;
+  // cumulativeY = 0;
   const offScreenCanvas = document.createElement("canvas");
-  
-  offScreenCanvas.width = props.canvasSize.x * 10; 
-  offScreenCanvas.height = props.canvasSize.y * 10; 
+  offScreenCanvas.width = props.canvasSize.x * 3; 
+  offScreenCanvas.height = props.canvasSize.y * 3; 
   const ctx = offScreenCanvas.getContext("2d");
   if (!ctx) return null;
 
   ctx.beginPath();
   ctx.strokeStyle = "white";
-
-  computedTrajectoryData.value.forEach((point, index) => {
-    const origin = computedTrajectoryData.value[0];
+ pointsToDraw.value.forEach((point, index) => {
+    const origin = pointsToDraw.value[0];
     const relativeObjX = (point.x! - origin.x!) * scaleFactor.value + offScreenCanvas.width / 2 + props.canvasCenterOffset.x!;
     const relativeObjY = (point.y! - origin.y!) * scaleFactor.value + offScreenCanvas.height / 2 + props.canvasCenterOffset.y!;
 
@@ -285,18 +288,17 @@ function draw() {
     const trajectoryCanvas = trajectoryCtx.value.canvas;
     ctx.save();
     if (currentReferenceBody.value) {
-      console.log(currentReferenceBody.value);
-      cumulativeX += currentReferenceBody.value!.position.x! - lastX;
-      cumulativeX += currentReferenceBody.value!.position.y! - lastY;
+      // cumulativeX += currentReferenceBody.value!.position.x! - lastX;
+      // cumulativeX += currentReferenceBody.value!.position.y! - lastY;
     }
 
-    const offsetX = (computedTrajectoryData.value[0].x! + cumulativeX - ship!.value!.position.x!) * scaleFactor.value;
-    const offsetY = (computedTrajectoryData.value[0].y! + cumulativeY - ship!.value!.position.y!) * scaleFactor.value;
+    const offsetX = (pointsToDraw.value[0].x! - ship!.value!.position.x!) * scaleFactor.value;
+    const offsetY = (pointsToDraw.value[0].y! - ship!.value!.position.y!) * scaleFactor.value;
     const drawStartX = (trajectoryCanvas.width / 2) - offsetX - ( canvas!.width / 2);
     const drawStartY = (trajectoryCanvas.height / 2) - offsetY - (canvas!.height / 2);
     if (currentReferenceBody.value) {
-    lastX = currentReferenceBody.value!.position.x!;
-    lastY = currentReferenceBody.value!.position.y!;
+    // lastX = currentReferenceBody.value!.position.x!;
+    // lastY = currentReferenceBody.value!.position.y!;
     }
     ctx.drawImage(trajectoryCanvas, drawStartX, drawStartY, canvas!.width, canvas!.height, 0, 0, canvas!.width, canvas!.height);
 
@@ -373,8 +375,8 @@ function drawOtherObjects(
 
 onMounted(() => {
   if (currentReferenceBody.value) {
-    lastX = currentReferenceBody.value!.position.x!;
-    lastY = currentReferenceBody.value!.position.y!;
+    // lastX = currentReferenceBody.value!.position.x!;
+    // lastY = currentReferenceBody.value!.position.y!;
   }
   stars.value = generateStarPositions(
     starBackgroundSize,

@@ -126,7 +126,8 @@ function initCalculateTrajectory() {
     );
     const window = mainStore.trajectorySettings.window;
     let granularityFactor = Math.ceil(window / mainStore.trajectorySettings.granularity);
-    mainStore.gameEngine.setWindowCount(1, window);
+    mainStore.gameEngine.setWindowCount(0, window);
+    mainStore.gameEngine.setWindowCount(0);
     worker.postMessage({
       shipData: {
         position,
@@ -163,7 +164,7 @@ watch(
 let worker: Worker;
 onMounted(() => {
   mainStore.setControls(keysPressed);
-  mainStore.initializeScenario(5);
+  mainStore.initializeScenario(1);
   worker = new Worker(
     new URL("../workers/trajectoryWorker.ts", import.meta.url),
     { type: "module" }

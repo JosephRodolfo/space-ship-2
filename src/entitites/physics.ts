@@ -191,7 +191,7 @@ export class Physics {
         timeStep,
         isTrajectory: true,
         callback: ({ newPosition, newVelocity, newAcceleration, otherBodiesState }) => {
-          trajectory.push(newPosition)
+          trajectory.push({ ...newPosition, index: time } as { x: number, y: number, index: number })
           currentShipState.position = newPosition;
           currentShipState.velocity = newVelocity;
           currentShipState.acceleration = newAcceleration;

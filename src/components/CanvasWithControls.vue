@@ -4,6 +4,9 @@
       <!-- <button class="button" @click="toggleOtherObjects">
         Hide other: {{ !hideOtherObjects }}
       </button> -->
+            <button class="button" @click="toggleCanvas">
+        Hide canvas: {{ hideCanvas }}
+      </button>
       <MagnificationControls
         :magnificationOpts="magnificationOpts"
         @input="handleMagnificationChange"
@@ -21,7 +24,7 @@
       </div>
     </div>
 
-    <div class="canvas">
+    <div class="canvas" v-if="!hideCanvas">
       <Canvas
         :draw-other-objects="hideOtherObjects"
         :magnification="Number(magnification)"
@@ -56,6 +59,8 @@ const props = defineProps({
 });
 const magnification = ref(props.magnificationOpts.defaultMagnification);
 const hideOtherObjects = ref(true);
+const hideCanvas = ref(false);
+
 const mainStore = useMainStore();
 const referenceBody = computed(() => {
   return mainStore.referenceBody;
@@ -99,6 +104,10 @@ function handleMouseMove(event: MouseEvent) {
 
     lastMousePosition.value = { x: event.clientX, y: event.clientY };
   }
+}
+
+function toggleCanvas() {
+  hideCanvas.value = !hideCanvas.value;
 }
 
 function handleMouseUp() {

@@ -33,6 +33,8 @@ self.addEventListener('message', (event) => {
     allTrajectoryPoints.push(...trajectoryChunk);
   }
 
+
+
   let filteredPoints = allTrajectoryPoints.filter((_el, index) => index % sampleRate === 0);
   
   if (filteredPoints[filteredPoints.length - 1] !== allTrajectoryPoints[allTrajectoryPoints.length - 1]) {
