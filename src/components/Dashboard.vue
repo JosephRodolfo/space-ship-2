@@ -35,7 +35,7 @@
       }"
       :background="true"
     ></CanvasWithControls>
-    <CanvasWithControls
+    <!-- <CanvasWithControls
       :magnificationOpts="{
         stepValue: 1,
         minValue: magnificationSettings.miniMap.min,
@@ -44,7 +44,7 @@
       }"
       :background="false"
       :canvas-size="canvasSize"
-    ></CanvasWithControls>
+    ></CanvasWithControls> -->
   </div>
 </div>
 </template>
@@ -164,7 +164,7 @@ watch(
 let worker: Worker;
 onMounted(() => {
   mainStore.setControls(keysPressed);
-  mainStore.initializeScenario(1);
+  mainStore.initializeScenario(3);
   worker = new Worker(
     new URL("../workers/trajectoryWorker.ts", import.meta.url),
     { type: "module" }

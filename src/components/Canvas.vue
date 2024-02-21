@@ -10,7 +10,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, computed } from "vue";
+import { ref, onMounted, onUnmounted, computed, watch } from "vue";
 import {
   generateStarPositions,
   renderStarField,
@@ -94,10 +94,10 @@ function updateBackgroundPosition(
 }
 
 let animationFrameId: number;
-// let lastX = 0;
-// let lastY = 0
-// let cumulativeX = 0;
-// let cumulativeY = 0;
+let lastX = 0;
+let lastY = 0
+let cumulativeX = 0;
+let cumulativeY = 0;
 const starBackgroundCtx = computed(() => {
   return renderStarField(
     props.canvasSize.x,
@@ -183,28 +183,77 @@ const currentReferenceBody = computed(() => {
 
 });
 
-const pointsToDraw = computed(() => {
-  return computedTrajectoryData.value.filter((el) => el.index! > store.gameEngine.windowCount);
-
+watch(computedTrajectoryData, () => {
+  cumulativeX = 0;
+  cumulativeY = 0;
 })
+
+// const pointsToDraw = computed(() => {
+//   return computedTrajectoryData.value.filter((el) => el.index! > store.gameEngine.windowCount);
+// })
+const pointsToDraw = computed(() => {
+  if (!computedTrajectoryData.value.length) {
+    return [];
+  }
+
+  // Find the index of the point closest to the current window count
+  const closestIndex = computedTrajectoryData.value.reduce((closestIdx, currentPoint, currentIndex, array) => {
+    if (currentIndex === 0) return closestIdx; // Automatically return the first index on the first iteration
+
+    const currentClosestPoint = array[closestIdx];
+    const currentDistance = Math.abs(currentPoint.index! - store.gameEngine.windowCount);
+    const closestDistance = Math.abs(currentClosestPoint.index! - store.gameEngine.windowCount);
+
+    return currentDistance < closestDistance ? currentIndex : closestIdx;
+  }, 0);
+
+  // Intend to include a range around the closest point for a balanced view
+  const range = 20; // Defines the range of points around the closest one
+  const startIndex = Math.max(closestIndex - range, 0);
+  const endIndex = Math.min(closestIndex + range, computedTrajectoryData.value.length - 1);
+  return computedTrajectoryData.value.slice(startIndex, endIndex + 1);
+});
+
+
+
+
 
 
 const trajectoryCtx = computed(() => {
-  // cumulativeX = 0;
-  // cumulativeY = 0;
   const offScreenCanvas = document.createElement("canvas");
-  offScreenCanvas.width = props.canvasSize.x * 3; 
-  offScreenCanvas.height = props.canvasSize.y * 3; 
+  offScreenCanvas.width = props.canvasSize.x * 1; 
+  offScreenCanvas.height = props.canvasSize.y * 1; 
   const ctx = offScreenCanvas.getContext("2d");
   if (!ctx) return null;
 
+  let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+
+// Calculate bounds for all points to determine if they fit within the canvas
+computedTrajectoryData.value.forEach(point => {
+  const relativeX = (point.x! - ship.value!.position.x!) * scaleFactor.value + offScreenCanvas.width / 2;
+  const relativeY = (point.y! - ship.value!.position.y!) * scaleFactor.value + offScreenCanvas.height / 2;
+
+  minX = Math.min(minX, relativeX);
+  maxX = Math.max(maxX, relativeX);
+  minY = Math.min(minY, relativeY);
+  maxY = Math.max(maxY, relativeY);
+});
+
+const exceedsCanvas = minX < 0 || maxX > offScreenCanvas.width || minY < 0 || maxY > offScreenCanvas.height;
+// Use all points if the trajectory doesn't exceed canvas bounds
+let points = exceedsCanvas ? pointsToDraw.value : computedTrajectoryData.value;
+console.log(exceedsCanvas, points.length)
+
   ctx.beginPath();
   ctx.strokeStyle = "white";
- pointsToDraw.value.forEach((point, index) => {
+  if (!pointsToDraw.value.length) {
+    return null;
+  }
+  
+ points.forEach((point, index) => {
     const origin = pointsToDraw.value[0];
     const relativeObjX = (point.x! - origin.x!) * scaleFactor.value + offScreenCanvas.width / 2 + props.canvasCenterOffset.x!;
     const relativeObjY = (point.y! - origin.y!) * scaleFactor.value + offScreenCanvas.height / 2 + props.canvasCenterOffset.y!;
-
     if (index === 0) {
       ctx.moveTo(relativeObjX, relativeObjY);
     } else {
@@ -284,21 +333,21 @@ function draw() {
       ctx.restore();
     }
     
-    if (store.gameEngine.windowCount && computedTrajectoryData.value.length > 0 && trajectoryCtx.value) {
+    if (store.gameEngine.windowCount && pointsToDraw.value.length > 0 && trajectoryCtx.value) {
     const trajectoryCanvas = trajectoryCtx.value.canvas;
     ctx.save();
     if (currentReferenceBody.value) {
-      // cumulativeX += currentReferenceBody.value!.position.x! - lastX;
-      // cumulativeX += currentReferenceBody.value!.position.y! - lastY;
+      cumulativeX += currentReferenceBody.value!.position.x! - lastX;
+      cumulativeX += currentReferenceBody.value!.position.y! - lastY;
     }
 
-    const offsetX = (pointsToDraw.value[0].x! - ship!.value!.position.x!) * scaleFactor.value;
-    const offsetY = (pointsToDraw.value[0].y! - ship!.value!.position.y!) * scaleFactor.value;
+    const offsetX = (pointsToDraw.value[0].x! + cumulativeX - ship!.value!.position.x!) * scaleFactor.value;
+    const offsetY = (pointsToDraw.value[0].y! + cumulativeY - ship!.value!.position.y!) * scaleFactor.value;
     const drawStartX = (trajectoryCanvas.width / 2) - offsetX - ( canvas!.width / 2);
     const drawStartY = (trajectoryCanvas.height / 2) - offsetY - (canvas!.height / 2);
     if (currentReferenceBody.value) {
-    // lastX = currentReferenceBody.value!.position.x!;
-    // lastY = currentReferenceBody.value!.position.y!;
+    lastX = currentReferenceBody.value!.position.x!;
+    lastY = currentReferenceBody.value!.position.y!;
     }
     ctx.drawImage(trajectoryCanvas, drawStartX, drawStartY, canvas!.width, canvas!.height, 0, 0, canvas!.width, canvas!.height);
 
