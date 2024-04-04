@@ -1,19 +1,19 @@
 <template>
   <div class="magnification-controls control-element-border button">
     <div class="tiles">
-      <button v-for="(value, index) in tileValues" :key="index" class="tile" :class="['button', {selected: selectedTile === value * multiplier}]" @click="selectTile(value * multiplier)">
-        {{ (value * multiplier).toLocaleString() }}
+      <button v-for="(value, index) in tileValues" :key="index" class="tile" :class="['button', {selected: selectedTile === value && mainStore.trajectorySettings.window === value * multiplier}]" @click="selectTile(value)">
+  {{ (value * multiplier).toLocaleString() }}
       </button>
     </div>
     <div class="slider-container">
       <input type="range" min="1" max="10" step=".25" v-model="multiplier" />
       <span>Multiplier: x{{ multiplier }}</span>
     </div>
-    <!-- Granularity Slider -->
     <div class="slider-container">
       <input type="range" min="20" max="200" step="1" v-model="granularity" />
       <span>Granularity: {{ granularity }}</span>
     </div>
+    <div>Value: {{ mainStore.trajectorySettings.window  }}</div>
   </div>
 </template>
 
