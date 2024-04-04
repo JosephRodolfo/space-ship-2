@@ -95,10 +95,13 @@ export class Physics {
       otherBodiesState: Planet[],
     }) => void;
     }) {
-    const filteredBodies = isTrajectory ? otherBodies.filter(({ name }) => name === 'earth') : otherBodies;
+    // const filteredBodies = isTrajectory ? otherBodies.filter(({ name }) => name === 'earth') : otherBodies;
+    // revisit why it was doing this, it was causing a problem when the sun was the only other body,
+    // but I'm not sure it was ever necessary
+    const filteredBodies = otherBodies;
     const totalForces = this.sumForces(filteredBodies, ship);
-    totalForces.x += thrustForce.x!;
-    totalForces.y += thrustForce.y!;
+    totalForces.x! += thrustForce.x!;
+    totalForces.y! += thrustForce.y!;
 
     
     const newAcceleration = this.calculateAcceleration({

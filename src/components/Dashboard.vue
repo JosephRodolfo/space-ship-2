@@ -96,10 +96,9 @@ function initCalculateTrajectory() {
     mainStore.setTrajectorySettings({ chunksReceived: 0 })
 
   const totalRange = mainStore.trajectorySettings.window;
-  const totalChunks = Math.ceil(totalRange / 1000); // Assuming chunkSize is defined
+  const totalChunks = Math.ceil(totalRange / 1000);
   
-  mainStore.setTrajectorySettings({ totalChunks }); // Store totalChunks for later reference
-  
+  mainStore.setTrajectorySettings({ totalChunks });
     const relativeVelocity = 
     currentReferenceBody.value 
     ? physics.calculateRelativeVelocity(currentScenario.value.ship.velocity, currentReferenceBody.value!.velocity)
@@ -164,7 +163,7 @@ watch(
 let worker: Worker;
 onMounted(() => {
   mainStore.setControls(keysPressed);
-  mainStore.initializeScenario(6);
+  mainStore.initializeScenario(5);
   worker = new Worker(
     new URL("../workers/trajectoryWorker.ts", import.meta.url),
     { type: "module" }
@@ -179,7 +178,6 @@ onMounted(() => {
     // if (mainStore.trajectorySettings.chunksReceived >= mainStore.trajectorySettings.totalChunks) {
       mainStore.setTrajectorySettings({ loadingTrajectory: false });
     // }
-
   };
   worker.onerror = (error) => {
     console.error("Worker error:", error);

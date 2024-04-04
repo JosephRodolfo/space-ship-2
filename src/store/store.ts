@@ -132,7 +132,7 @@ const initialState: Scenario[] = [
       min: 1,
       max: 100000,
     },
-    referenceBody: 'earth',
+    referenceBody: '',
     magnificationSettings: {
       map: {
         min: 1,
@@ -180,7 +180,8 @@ export const useMainStore = defineStore('main', {
     error: null,
     pause: false,
     trajectorySettings: {
-      window: 1000,
+      // window: 1000,
+      window: 5_000_000,
       granularity: 50,
       loadingTrajectory: false,
       totalChunks: 0,
