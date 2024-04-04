@@ -188,47 +188,31 @@ watch(computedTrajectoryData, () => {
   cumulativeY = 0;
 })
 
-// const pointsToDraw = computed(() => {
-//   return computedTrajectoryData.value.filter((el) => el.index! > store.gameEngine.windowCount);
-// })
 const pointsToDraw = computed(() => {
-  if (!computedTrajectoryData.value.length) {
-    return [];
+  let filteredPoints = computedTrajectoryData.value.filter(el => el.index! > store.gameEngine.windowCount);
+
+  if (ship.value && ship.value.position) {
+    const shipStartPosition = {
+      x: ship.value.position.x! - cumulativeX,
+      y: ship.value.position.y! - cumulativeY,
+      index: store.gameEngine.windowCount,
+    }
+    filteredPoints = [shipStartPosition, ...filteredPoints];
   }
 
-  // Find the index of the point closest to the current window count
-  const closestIndex = computedTrajectoryData.value.reduce((closestIdx, currentPoint, currentIndex, array) => {
-    if (currentIndex === 0) return closestIdx; // Automatically return the first index on the first iteration
-
-    const currentClosestPoint = array[closestIdx];
-    const currentDistance = Math.abs(currentPoint.index! - store.gameEngine.windowCount);
-    const closestDistance = Math.abs(currentClosestPoint.index! - store.gameEngine.windowCount);
-
-    return currentDistance < closestDistance ? currentIndex : closestIdx;
-  }, 0);
-
-  // Intend to include a range around the closest point for a balanced view
-  const range = 20; // Defines the range of points around the closest one
-  const startIndex = Math.max(closestIndex - range, 0);
-  const endIndex = Math.min(closestIndex + range, computedTrajectoryData.value.length - 1);
-  return computedTrajectoryData.value.slice(startIndex, endIndex + 1);
+  return filteredPoints;
 });
-
-
-
-
 
 
 const trajectoryCtx = computed(() => {
   const offScreenCanvas = document.createElement("canvas");
-  offScreenCanvas.width = props.canvasSize.x * 1; 
-  offScreenCanvas.height = props.canvasSize.y * 1; 
+  offScreenCanvas.width = props.canvasSize.x; 
+  offScreenCanvas.height = props.canvasSize.y; 
   const ctx = offScreenCanvas.getContext("2d");
   if (!ctx) return null;
 
   let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
 
-// Calculate bounds for all points to determine if they fit within the canvas
 computedTrajectoryData.value.forEach(point => {
   const relativeX = (point.x! - ship.value!.position.x!) * scaleFactor.value + offScreenCanvas.width / 2;
   const relativeY = (point.y! - ship.value!.position.y!) * scaleFactor.value + offScreenCanvas.height / 2;
@@ -240,15 +224,14 @@ computedTrajectoryData.value.forEach(point => {
 });
 
 const exceedsCanvas = minX < 0 || maxX > offScreenCanvas.width || minY < 0 || maxY > offScreenCanvas.height;
-// Use all points if the trajectory doesn't exceed canvas bounds
 let points = exceedsCanvas ? pointsToDraw.value : computedTrajectoryData.value;
-console.log(exceedsCanvas, points.length)
-
   ctx.beginPath();
   ctx.strokeStyle = "white";
-  if (!pointsToDraw.value.length) {
+  if (!points.length) {
     return null;
   }
+
+  
   
  points.forEach((point, index) => {
     const origin = pointsToDraw.value[0];

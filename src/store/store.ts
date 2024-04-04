@@ -146,6 +146,29 @@ const initialState: Scenario[] = [
       }
     }
   },
+  {
+    id: 6,
+    name: 'Empty Space (Moving)',
+    ship: new Ship('ship', massStation, { x: 0, y: 0 }, { x: 20000, y: 0 }, 100),
+    otherBodies: [],
+    speedSettings: {
+      min: 1,
+      max: 300,
+    },
+    referenceBody: '',
+    magnificationSettings: {
+      map: {
+        min: 1,
+        max: 10000,
+        default: 6000,
+      },
+      miniMap: {
+        min: 1,
+        max: 1000000,
+        default: 407143,
+      }
+    }
+  },
 ]
 
 const originalScenarios: Scenario[] = JSON.parse(JSON.stringify(initialState));
