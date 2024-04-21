@@ -80,7 +80,6 @@ export class Physics {
     otherBodies,
     thrustForce,
     timeStep,
-    isTrajectory = false,
     callback,
   }: {
     ship: Ship;

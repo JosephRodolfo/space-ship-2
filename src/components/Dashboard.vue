@@ -163,7 +163,7 @@ watch(
 let worker: Worker;
 onMounted(() => {
   mainStore.setControls(keysPressed);
-  mainStore.initializeScenario(5);
+  mainStore.initializeScenario(3);
   worker = new Worker(
     new URL("../workers/trajectoryWorker.ts", import.meta.url),
     { type: "module" }
@@ -174,10 +174,7 @@ onMounted(() => {
     const { chunk } = event.data;
     mainStore.setTrajectoryData([...mainStore.trajectoryData, ...chunk]);
     mainStore.setTrajectorySettings({ chunksReceived: mainStore.trajectorySettings.chunksReceived + 1 });
-    // console.log(mainStore.trajectorySettings.chunksReceived, mainStore.trajectorySettings.totalChunks)
-    // if (mainStore.trajectorySettings.chunksReceived >= mainStore.trajectorySettings.totalChunks) {
       mainStore.setTrajectorySettings({ loadingTrajectory: false });
-    // }
   };
   worker.onerror = (error) => {
     console.error("Worker error:", error);

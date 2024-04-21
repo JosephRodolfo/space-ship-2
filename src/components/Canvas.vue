@@ -188,6 +188,32 @@ watch(computedTrajectoryData, () => {
   cumulativeY = 0;
 })
 
+// watch(
+//       [() => ship.value!.position.x, () => ship.value!.position.y], 
+//       (newValues, oldValues) => {
+//         const [newX, newY] = newValues;
+//         const [oldX, oldY] = oldValues;
+//          if (newX !== oldX) {
+//           cumulativeX += currentReferenceBody.value!.position.x! - lastX;        
+//         }  if (newY !== oldY) {
+//           cumulativeX += currentReferenceBody.value!.position.y! - lastY;
+//         }
+//       },
+//     );
+
+    watch(
+      [() => currentReferenceBody.value!.position.x, () => currentReferenceBody.value!.position.y], 
+      () => {
+        if (currentReferenceBody.value) {
+          cumulativeX += currentReferenceBody.value!.position.x! - lastX;        
+          cumulativeX += currentReferenceBody.value!.position.y! - lastY;
+          lastX = currentReferenceBody.value!.position.x!;
+          lastY = currentReferenceBody.value!.position.y!;
+    }
+  }
+    );
+
+
 const pointsToDraw = computed(() => {
   let filteredPoints = computedTrajectoryData.value.filter(el => el.index! > store.gameEngine.windowCount);
 
@@ -319,19 +345,10 @@ function draw() {
     if (store.gameEngine.windowCount && pointsToDraw.value.length > 0 && trajectoryCtx.value) {
     const trajectoryCanvas = trajectoryCtx.value.canvas;
     ctx.save();
-    if (currentReferenceBody.value) {
-      cumulativeX += currentReferenceBody.value!.position.x! - lastX;
-      cumulativeX += currentReferenceBody.value!.position.y! - lastY;
-    }
-
     const offsetX = (pointsToDraw.value[0].x! + cumulativeX - ship!.value!.position.x!) * scaleFactor.value;
     const offsetY = (pointsToDraw.value[0].y! + cumulativeY - ship!.value!.position.y!) * scaleFactor.value;
     const drawStartX = (trajectoryCanvas.width / 2) - offsetX - ( canvas!.width / 2);
     const drawStartY = (trajectoryCanvas.height / 2) - offsetY - (canvas!.height / 2);
-    if (currentReferenceBody.value) {
-    lastX = currentReferenceBody.value!.position.x!;
-    lastY = currentReferenceBody.value!.position.y!;
-    }
     ctx.drawImage(trajectoryCanvas, drawStartX, drawStartY, canvas!.width, canvas!.height, 0, 0, canvas!.width, canvas!.height);
 
     ctx.restore();

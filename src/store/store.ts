@@ -181,7 +181,7 @@ export const useMainStore = defineStore('main', {
     pause: false,
     trajectorySettings: {
       // window: 1000,
-      window: 5_000_000,
+      window: 1000,
       granularity: 50,
       loadingTrajectory: false,
       totalChunks: 0,
