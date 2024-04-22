@@ -10,7 +10,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, computed, watch } from "vue";
+import { ref, onMounted, onUnmounted, computed } from "vue";
 import {
   generateStarPositions,
   renderStarField,
@@ -71,6 +71,13 @@ const ship = computed(() => {
   return store.initialState?.ship;
 })
 
+const shipPosition = computed(() => {
+    return {
+      x: store?.initialState?.ship.position.x,
+      y: store?.initialState?.ship.position.y
+  }
+});
+
 const otherObjects = computed(() => {
   return store.initialState?.otherBodies;
 })
@@ -94,10 +101,10 @@ function updateBackgroundPosition(
 }
 
 let animationFrameId: number;
-let lastX = 0;
-let lastY = 0
-let cumulativeX = 0;
-let cumulativeY = 0;
+// let lastX = 0;
+// let lastY = 0
+// let cumulativeX = 0;
+// let cumulativeY = 0;
 const starBackgroundCtx = computed(() => {
   return renderStarField(
     props.canvasSize.x,
@@ -183,44 +190,25 @@ const currentReferenceBody = computed(() => {
 
 });
 
-watch(computedTrajectoryData, () => {
-  cumulativeX = 0;
-  cumulativeY = 0;
-})
 
-// watch(
-//       [() => ship.value!.position.x, () => ship.value!.position.y], 
-//       (newValues, oldValues) => {
-//         const [newX, newY] = newValues;
-//         const [oldX, oldY] = oldValues;
-//          if (newX !== oldX) {
-//           cumulativeX += currentReferenceBody.value!.position.x! - lastX;        
-//         }  if (newY !== oldY) {
-//           cumulativeX += currentReferenceBody.value!.position.y! - lastY;
-//         }
-//       },
-//     );
-
-    watch(
-      [() => currentReferenceBody.value!.position.x, () => currentReferenceBody.value!.position.y], 
-      () => {
-        if (currentReferenceBody.value) {
-          cumulativeX += currentReferenceBody.value!.position.x! - lastX;        
-          cumulativeX += currentReferenceBody.value!.position.y! - lastY;
-          lastX = currentReferenceBody.value!.position.x!;
-          lastY = currentReferenceBody.value!.position.y!;
-    }
+ const cumulative = computed(() => {
+  if (currentReferenceBody.value) {
+  const found = store.gameEngine.cumulative.find((el) => el.name === currentReferenceBody.value!.name);
+  return {
+    x: found?.position.x, 
+    y: found?.position.y
+  };
   }
-    );
-
+  return { x: 0, y: 0 };
+ })   
 
 const pointsToDraw = computed(() => {
   let filteredPoints = computedTrajectoryData.value.filter(el => el.index! > store.gameEngine.windowCount);
 
   if (ship.value && ship.value.position) {
     const shipStartPosition = {
-      x: ship.value.position.x! - cumulativeX,
-      y: ship.value.position.y! - cumulativeY,
+      x: shipPosition.value.x! - cumulative.value.x!,
+      y: shipPosition.value.y! - cumulative.value.y!,
       index: store.gameEngine.windowCount,
     }
     filteredPoints = [shipStartPosition, ...filteredPoints];
@@ -240,8 +228,8 @@ const trajectoryCtx = computed(() => {
   let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
 
 computedTrajectoryData.value.forEach(point => {
-  const relativeX = (point.x! - ship.value!.position.x!) * scaleFactor.value + offScreenCanvas.width / 2;
-  const relativeY = (point.y! - ship.value!.position.y!) * scaleFactor.value + offScreenCanvas.height / 2;
+  const relativeX = (point.x! - shipPosition.value!.x!) * scaleFactor.value + offScreenCanvas.width / 2;
+  const relativeY = (point.y! - shipPosition.value.y!) * scaleFactor.value + offScreenCanvas.height / 2;
 
   minX = Math.min(minX, relativeX);
   maxX = Math.max(maxX, relativeX);
@@ -274,7 +262,6 @@ let points = exceedsCanvas ? pointsToDraw.value : computedTrajectoryData.value;
   return ctx;
 });
 
-
 function draw() {
   const canvas = myCanvas.value;
   const ctx = canvas?.getContext("2d");
@@ -289,7 +276,7 @@ function draw() {
 
     if (props.background) {
       const velocity = currentReferenceBody.value 
-      ? physics.calculateRelativeVelocity(ship.value!.velocity, currentReferenceBody.value.velocity) 
+      ? physics.calculateRelativeVelocity(ship.value!.velocity!, currentReferenceBody.value.velocity!) 
       : ship.value!.velocity;
       const { x: bgX, y: bgY } = updateBackgroundPosition(
         !store.pause ? velocity! : { x: 0, y: 0},
@@ -345,8 +332,8 @@ function draw() {
     if (store.gameEngine.windowCount && pointsToDraw.value.length > 0 && trajectoryCtx.value) {
     const trajectoryCanvas = trajectoryCtx.value.canvas;
     ctx.save();
-    const offsetX = (pointsToDraw.value[0].x! + cumulativeX - ship!.value!.position.x!) * scaleFactor.value;
-    const offsetY = (pointsToDraw.value[0].y! + cumulativeY - ship!.value!.position.y!) * scaleFactor.value;
+    const offsetX = (pointsToDraw.value[0].x! + cumulative.value.x! - shipPosition.value.x!) * scaleFactor.value;
+    const offsetY = (pointsToDraw.value[0].y! + cumulative.value.y! - shipPosition!.value!.y!) * scaleFactor.value;
     const drawStartX = (trajectoryCanvas.width / 2) - offsetX - ( canvas!.width / 2);
     const drawStartY = (trajectoryCanvas.height / 2) - offsetY - (canvas!.height / 2);
     ctx.drawImage(trajectoryCanvas, drawStartX, drawStartY, canvas!.width, canvas!.height, 0, 0, canvas!.width, canvas!.height);
@@ -399,11 +386,11 @@ function drawOtherObjects(
     // const canvasCenterX = props.canvasSize.x / 2;
     // const canvasCenterY = props.canvasSize.y / 2;
     const relativeObjX =
-      (obj.position.x! - ship!.value!.position.x!) * scaleFactor + canvasCenterX!;
+      (obj.position.x! - shipPosition!.value!.x!) * scaleFactor + canvasCenterX!;
     const relativeObjY =
-      (obj.position.y! - ship.value!.position.y!) * scaleFactor + canvasCenterY!;
+      (obj.position.y! - shipPosition.value!.y!) * scaleFactor + canvasCenterY!;
 
-    const adjustedRadius = Math.max(obj.radius * scaleFactor, minimumSize);
+    const adjustedRadius = Math.max(obj.radius! * scaleFactor, minimumSize);
 
     ctx.beginPath();
     ctx.arc(relativeObjX, relativeObjY, adjustedRadius, 0, 2 * Math.PI);
@@ -423,10 +410,10 @@ function drawOtherObjects(
 }
 
 onMounted(() => {
-  if (currentReferenceBody.value) {
-    // lastX = currentReferenceBody.value!.position.x!;
-    // lastY = currentReferenceBody.value!.position.y!;
-  }
+  // if (currentReferenceBody.value) {
+  //   lastX = currentReferenceBody.value!.position.x!;
+  //   lastY = currentReferenceBody.value!.position.y!;
+  // }
   stars.value = generateStarPositions(
     starBackgroundSize,
     props.canvasSize.y,

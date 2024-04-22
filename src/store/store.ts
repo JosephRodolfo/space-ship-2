@@ -176,6 +176,7 @@ const originalScenarios: Scenario[] = JSON.parse(JSON.stringify(initialState));
 export const useMainStore = defineStore('main', {
   state: () => ({
     trajectoryData: [] as Vector2D[],
+    cumulative: { x: 0, y: 0 } as Vector2D,
     loading: false,
     error: null,
     pause: false,
@@ -200,6 +201,9 @@ export const useMainStore = defineStore('main', {
     },
     setLoading(data: any) {
         this.loading = data;
+    },
+    setCumulative(data: Vector2D) {
+      this.cumulative = data;
     },
     setError(data: any) {
         this.error = data;
@@ -251,7 +255,7 @@ export const useMainStore = defineStore('main', {
           clonedScenario.ship.radius
         ),
         otherBodies: clonedScenario.otherBodies.map((body: Planet) => 
-          new Planet(body.position, body.mass, body.velocity, body.radius, body.name)
+          new Planet(body.position, body.mass!, body.velocity!, body.radius!, body.name)
         )
       };
 

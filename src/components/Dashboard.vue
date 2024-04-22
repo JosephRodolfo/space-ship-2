@@ -2,11 +2,11 @@
   <div v-if="currentScenario">
   <ScenarioSelector></ScenarioSelector>
   <div class="speed-controls">
-  <p class="button">Velocity X: {{ currentScenario!.ship.velocity.x!.toFixed(2) }}</p>
-  <p class="button">Velocity Y: {{ currentScenario!.ship.velocity.y!.toFixed(2) }}</p>
+  <p class="button">Velocity X: {{ currentScenario!.ship.velocity!.x!.toFixed(2) }}</p>
+  <p class="button">Velocity Y: {{ currentScenario!.ship.velocity!.y!.toFixed(2) }}</p>
   <p class="button">
-    Accleration X: {{ currentScenario!.ship.acceleration.x!.toFixed(2) }} Accleration Y:
-    {{ currentScenario!.ship.acceleration.y?.toFixed(2) }}
+    Accleration X: {{ currentScenario!.ship.acceleration!.x!.toFixed(2) }} Accleration Y:
+    {{ currentScenario!.ship.acceleration!.y?.toFixed(2) }}
   </p>
   <p class="button">Angle: {{ (currentScenario!.ship.rotationAngle * (180 / Math.PI)).toFixed(0) }}</p>
   <div class="button">
@@ -101,7 +101,7 @@ function initCalculateTrajectory() {
   mainStore.setTrajectorySettings({ totalChunks });
     const relativeVelocity = 
     currentReferenceBody.value 
-    ? physics.calculateRelativeVelocity(currentScenario.value.ship.velocity, currentReferenceBody.value!.velocity)
+    ? physics.calculateRelativeVelocity(currentScenario.value.ship.velocity!, currentReferenceBody.value.velocity!)
     :
     currentScenario.value.ship.velocity;
     const relativePosition = 
@@ -110,15 +110,15 @@ function initCalculateTrajectory() {
     currentScenario.value.ship.acceleration;
     mainStore.setTrajectoryData([]);
     const position = { x: relativePosition.x, y: relativePosition.y };
-    const velocity = { x: relativeVelocity.x, y: relativeVelocity.y };
-    const acceleration = { x: relativeAcceleration.x, y: relativeAcceleration.y };
+    const velocity = { x: relativeVelocity!.x, y: relativeVelocity!.y };
+    const acceleration = { x: relativeAcceleration!.x, y: relativeAcceleration!.y };
     const otherMapped = currentScenario.value.otherBodies.map(
       ({ mass, position, acceleration, velocity, name }) => {
         return {
           mass,
           position: { x: position.x, y: position.y},
-          acceleration: { x: acceleration.x, y: acceleration.y},
-          velocity: { x: velocity.x, y: velocity.y},
+          acceleration: { x: acceleration!.x, y: acceleration!.y},
+          velocity: { x: velocity!.x, y: velocity!.y},
           name,
         };
       }
@@ -140,6 +140,15 @@ function initCalculateTrajectory() {
       otherBodies: otherMapped,
       window: [0, window],
     });
+    console.log('init');
+    mainStore.gameEngine.cumulative = mainStore.gameEngine.cumulative.map((el) => {
+      return { ...el, position: 
+        {
+          x: 0,
+          y: 0,
+        }
+      }
+    })
 }
 
 watch(

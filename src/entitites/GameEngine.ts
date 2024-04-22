@@ -11,6 +11,8 @@ export class GameEngine {
   thrustIntervalX: number | null;
   thrustIntervalY: number | null;
   positionInterval: number | null;
+  cumulative: Planet[];
+  referenceBodyLast: Planet[];
     physics: Physics;
     frameCount: number;
     windowCount: number;
@@ -35,6 +37,8 @@ export class GameEngine {
       this.frameCount = 0;
       this.windowCount = 0;
       this.windowMax = 0;
+      this.cumulative = this.otherObjects
+      this.referenceBodyLast = this.otherObjects
   }
 
   start() {
@@ -85,6 +89,17 @@ export class GameEngine {
       thrustForce: totalForce,
       timeStep: this.speed,
       callback: ({ newAcceleration, newVelocity, newPosition, otherBodiesState }) => {
+        this.cumulative = this.cumulative.map((el) => {
+          const foundLast = this.referenceBodyLast.find(({ name }) => name === el.name);
+          const foundReference = this.otherObjects.find(({ name }) => name === el.name);
+          return {
+            ...el,
+            position: {
+              x: el!.position.x! += (foundReference!.position.x! - foundLast?.position.x!),
+              y: el!.position.y! += (foundReference!.position.y! - foundLast?.position.y!),
+            }
+          } as Planet          
+        })
         this.otherObjects = otherBodiesState.map((state) => {
           const body = this.otherObjects.find(({ name }) => name === state.name);
           if (!body) {
@@ -95,10 +110,25 @@ export class GameEngine {
           body.acceleration = state.acceleration;
           return body;
         });
+        this.referenceBodyLast = this.otherObjects.map((el) => {
+          const copied = JSON.parse(JSON.stringify(el))
+          return {
+            ...copied,
+            position: {
+              x: copied.position.x,
+              y: copied.position.y,
+            }
+          } as Planet          
+        })
+         //         cumulativeX += currentReferenceBody.value!.position.x! - lastX;        
+  //         cumulativeX += currentReferenceBody.value!.position.y! - lastY;
+  //         lastX = currentReferenceBody.value!.position.x!;
+  //         lastY = currentReferenceBody.value!.position.y!;
+ 
         this.ship.updateAcceleration(newAcceleration);
         this.ship.updateVelocity(newVelocity);
         this.ship.updatePositionNew(newPosition);
-      },
+      }, 
     });
 
     this.frameRef = requestAnimationFrame(this.update.bind(this));

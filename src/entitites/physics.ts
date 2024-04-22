@@ -12,7 +12,7 @@ export class Physics {
       ship2.position
     );
 
-    const forceMagnitude = (G * ship1.mass * ship2.mass) / distance ** 2;
+    const forceMagnitude = (G * ship1.mass! * ship2.mass!) / distance ** 2;
 
     const forceDirection = {
       x: distanceX / distance,
@@ -105,12 +105,12 @@ export class Physics {
     
     const newAcceleration = this.calculateAcceleration({
       force: totalForces,
-      mass: ship.mass,
+      mass: ship.mass!,
     });
 
     const newVelocity = this.calculateVelocity({
       acceleration: newAcceleration,
-      initialVelocity: ship.velocity,
+      initialVelocity: ship.velocity!,
       timeStep,
     });
 
@@ -137,12 +137,12 @@ export class Physics {
 
     const acceleration = this.calculateAcceleration({
       force: forces,
-      mass: body.mass,
+      mass: body.mass!,
     });
 
     const velocity = this.calculateVelocity({
       acceleration: acceleration,
-      initialVelocity: body.velocity,
+      initialVelocity: body.velocity!,
       timeStep,
     });
 
@@ -202,9 +202,6 @@ export class Physics {
             if (!body) {
               return state;
             }
-            // body.position = state.position;
-            // body.velocity = state.velocity;
-            // body.acceleration = state.acceleration;
             return body;
         });
       }
@@ -224,7 +221,7 @@ export class Physics {
     const dx = circle1.position.x! - circle2.position.x!;
     const dy = circle1.position.y! - circle2.position.y!;
     const distanceSquared = dx * dx + dy * dy;
-    const radiusSumSquared = (circle1.radius + circle2.radius) * (circle1.radius + circle2.radius);
+    const radiusSumSquared = (circle1.radius! + circle2.radius!) * (circle1.radius! + circle2.radius!);
     return distanceSquared < radiusSumSquared;
   }
   calculateOribitalVelocity(distance: number, mass: number) {
