@@ -140,14 +140,8 @@ function initCalculateTrajectory() {
       otherBodies: otherMapped,
       window: [0, window],
     });
-    console.log('init');
-    mainStore.gameEngine.cumulative = mainStore.gameEngine.cumulative.map((el) => {
-      return { ...el, position: 
-        {
-          x: 0,
-          y: 0,
-        }
-      }
+    mainStore.gameEngine.cumulative.forEach((el) => {
+      el.position = { x: 0, y: 0 }
     })
 }
 

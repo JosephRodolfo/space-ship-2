@@ -35,19 +35,19 @@ export class Ship extends CelestialBody {
       y: force.y! * timeStep,
     };
 
-    this.acceleration.x! += scaledForce.x / this.mass || 0;
-    this.acceleration.y! += scaledForce.y / this.mass || 0;
+    this.acceleration!.x! += scaledForce.x / this.mass! || 0;
+    this.acceleration!.y! += scaledForce.y / this.mass! || 0;
   }
   updateVelocity(velocity: Vector2D) {
-    this.velocity.x = velocity.x;
-    this.velocity.y = velocity.y;
+    this.velocity!.x = velocity.x;
+    this.velocity!.y = velocity.y;
   }
   updateAcceleration(acceleration: Vector2D) {
-    this.acceleration.x = acceleration.x;
-    this.acceleration.y = acceleration.y;
+    this.acceleration!.x = acceleration.x;
+    this.acceleration!.y = acceleration.y;
   }
   get rotationAngle(): number {
-    if (this.acceleration.x === 0 && this.acceleration.y === 0) {
+    if (this.acceleration!.x === 0 && this.acceleration!.y === 0) {
       return this._rotationAngle!;
     }
     return this._rotationAngle!;
