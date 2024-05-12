@@ -33,11 +33,6 @@ function resetScenario() {
 }
 </script>
 <style>
-.scenario-selector {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
 .selector-links {
   display: flex;
   flex-direction: row;

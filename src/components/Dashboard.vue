@@ -9,11 +9,12 @@
     {{ currentScenario!.ship.acceleration!.y?.toFixed(2) }}
   </p>
   <p class="button">Angle: {{ (currentScenario!.ship.rotationAngle * (180 / Math.PI)).toFixed(0) }}</p>
-  <div class="button">
+  <!-- <div class="button">
     <input type="range" :min="speedSettings.min" :max="speedSettings.max" :step="1" :value="mainStore.gameEngine.speed" @input="setSpeed"/>
     
     <span class="button">Speed: {{ mainStore.gameEngine.speed }}</span>
-  </div>
+  </div> -->
+  <SpeedSlider></SpeedSlider>
     <button class="button" @click="handlePause">Pause</button>
     <button class="button" @click="initCalculateTrajectory"> calculate Trajectory</button>
   <p class="button">
@@ -55,14 +56,12 @@ import ScenarioSelector from "./ScenarioSelector.vue";
 import { useKeyPress } from "../composables/useKeyPress";
 import CanvasWithControls from "./CanvasWithControls.vue";
 import TrajectoryControls from "./TrajectoryControls.vue";
+import SpeedSlider from "./SpeedSlider.vue";
 import { useMainStore } from "../store/store";
 import { Physics } from "../entitites/physics";
 const { keysPressed, onKeydown, onKeyup } = useKeyPress();
 const currentScenario = computed(() => {
   return mainStore.initialState;
-})
-const speedSettings = computed(() => {
-  return currentScenario.value!.speedSettings;
 })
 const magnificationSettings = computed(() => {
   return currentScenario.value!.magnificationSettings;
@@ -83,12 +82,6 @@ const currentReferenceBody = computed(() => {
   if (!mainStore.initialState) return null;
   return mainStore.initialState.otherBodies.find((el) => el.name === mainStore.referenceBody);
 })
-
-function setSpeed(event: Event) {
-  const inputEvent = event as InputEvent;
-  const inputElement = inputEvent.target as HTMLInputElement;
-  mainStore.setSpeed(Number(inputElement.value));
-}
 
 function initCalculateTrajectory() {
   if (!currentScenario.value) return;
@@ -198,11 +191,5 @@ function handlePause() {
 .canvas-container {
   display: flex;
   flex-direction: row;
-}
-.speed-controls {
-  display: flex;
-  flex-direction: row;
-  gap: 5px;
-  flex-wrap: wrap;
 }
 </style>

@@ -30,7 +30,7 @@ const initialState: Scenario[] = [
     referenceBody: '',
     speedSettings: {
       min: 1,
-      max: 300,
+      max: 30000,
     },
     magnificationSettings: {
       map: {
@@ -52,7 +52,7 @@ const initialState: Scenario[] = [
     otherBodies: [],
     speedSettings: {
       min: 1,
-      max: 300,
+      max: 30000,
     },
     referenceBody: '',
     magnificationSettings: {
@@ -78,7 +78,7 @@ const initialState: Scenario[] = [
     ],
     speedSettings: {
       min: 1,
-      max: 5000,
+      max: 30000,
     },
     referenceBody: 'earth',
     magnificationSettings: {
@@ -105,7 +105,7 @@ const initialState: Scenario[] = [
     ],
     speedSettings: {
       min: 1,
-      max: 5000,
+      max: 30000,
     },
     referenceBody: 'earth',
     magnificationSettings: {
@@ -130,7 +130,7 @@ const initialState: Scenario[] = [
     ],
     speedSettings: {
       min: 1,
-      max: 100000,
+      max: 1000000,
     },
     referenceBody: '',
     magnificationSettings: {
@@ -153,7 +153,7 @@ const initialState: Scenario[] = [
     otherBodies: [],
     speedSettings: {
       min: 1,
-      max: 300,
+      max: 1000000,
     },
     referenceBody: '',
     magnificationSettings: {
