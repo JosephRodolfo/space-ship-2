@@ -183,8 +183,8 @@ export class Physics {
   ) {
     const [startTime, endTime] = window;
     let trajectory: Vector2D[] = [];
-    let currentShipState = { ...ship };
-    let celestialBodies: (Planet)[] = otherBodies;
+    const currentShipState = structuredClone(ship);
+    let celestialBodies = otherBodies.map(obj => structuredClone(obj));
     for (let time = startTime; time <= endTime; time += timeStep) {
       this.advanceTimeStep({
         ship: currentShipState as Ship,
