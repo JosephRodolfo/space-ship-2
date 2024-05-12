@@ -48,6 +48,19 @@ button {
   transition: border-color 0.25s;
 
 }
+.speed-controls {
+  display: flex;
+  flex-direction: row;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.scenario-selector {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 button:hover {
   border-color: #646cff;
 }
