@@ -1,7 +1,10 @@
 <template>
   <div v-if="currentScenario">
-  <ScenarioSelector></ScenarioSelector>
-  <div class="speed-controls">
+    <div class="speed-controls">
+    <ScenarioSelector2></ScenarioSelector2>
+    <SpeedSlider></SpeedSlider>
+    <TrajectoryControls></TrajectoryControls>
+
   <p class="button">Velocity X: {{ currentScenario!.ship.velocity!.x!.toFixed(2) }}</p>
   <p class="button">Velocity Y: {{ currentScenario!.ship.velocity!.y!.toFixed(2) }}</p>
   <p class="button">
@@ -9,23 +12,13 @@
     {{ currentScenario!.ship.acceleration!.y?.toFixed(2) }}
   </p>
   <p class="button">Angle: {{ (currentScenario!.ship.rotationAngle * (180 / Math.PI)).toFixed(0) }}</p>
-  <!-- <div class="button">
-    <input type="range" :min="speedSettings.min" :max="speedSettings.max" :step="1" :value="mainStore.gameEngine.speed" @input="setSpeed"/>
-    
-    <span class="button">Speed: {{ mainStore.gameEngine.speed }}</span>
-  </div> -->
-  <SpeedSlider></SpeedSlider>
     <button class="button" @click="handlePause">Pause</button>
     <button class="button" @click="initCalculateTrajectory"> calculate Trajectory</button>
   <p class="button">
     Position: {{ currentScenario!.ship.position.x!.toFixed(2) }},
     {{ currentScenario!.ship.position.y!.toFixed(2) }}
   </p>
-  <p class="button">Trajectory storage: {{ mainStore.trajectoryData.length }}</p>
-  <p class="button">Total chunk: {{ mainStore.trajectorySettings.totalChunks }}</p>
 </div>
-
-  <TrajectoryControls></TrajectoryControls>
   <div class="canvas-container">
     <CanvasWithControls
       :magnificationOpts="{
@@ -52,7 +45,7 @@
 
 <script setup lang="ts">
 import { onMounted, onUnmounted, computed, watch, watchEffect } from "vue";
-import ScenarioSelector from "./ScenarioSelector.vue";
+import ScenarioSelector2 from "./ScenarioSelector.vue";
 import { useKeyPress } from "../composables/useKeyPress";
 import CanvasWithControls from "./CanvasWithControls.vue";
 import TrajectoryControls from "./TrajectoryControls.vue";

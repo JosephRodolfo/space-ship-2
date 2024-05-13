@@ -36,12 +36,12 @@ const initialState: Scenario[] = [
       map: {
         min: 1,
         max: 20000,
-        default: 6000,
+        default: 0,
       },
       miniMap: {
         min: 1,
         max: 1000000,
-        default: 407143,
+        default: 3,
       }
     }
   },
@@ -59,12 +59,12 @@ const initialState: Scenario[] = [
       map: {
         min: 1,
         max: 10000,
-        default: 6000,
+        default: 0,
       },
       miniMap: {
         min: 1,
         max: 1000000,
-        default: 407143,
+        default: 3,
       }
     }
   },
@@ -85,12 +85,12 @@ const initialState: Scenario[] = [
       map: {
         min: 1,
         max: 10000,
-        default: 6000,
+        default: 0,
       },
       miniMap: {
         min: 1,
         max: 1214660006 * 2,
-        default: 407143,
+        default: 4,
       }
     }
   },
@@ -112,12 +112,12 @@ const initialState: Scenario[] = [
       map: {
         min: 1,
         max: 10000,
-        default: 6000,
+        default: 0,
       },
       miniMap: {
         min: 1,
         max: 1214660006 * 7,
-        default: 407143,
+        default: 3,
       }
     }
   },
@@ -137,12 +137,12 @@ const initialState: Scenario[] = [
       map: {
         min: 1,
         max: 10000,
-        default: 6000,
+        default: 0,
       },
       miniMap: {
         min: 1,
         max: 1214660006 * 2,
-        default: 407143,
+        default: 4,
       }
     }
   },
@@ -160,12 +160,12 @@ const initialState: Scenario[] = [
       map: {
         min: 1,
         max: 10000,
-        default: 6000,
+        default: 0,
       },
       miniMap: {
         min: 1,
         max: 1000000,
-        default: 407143,
+        default: 3,
       }
     }
   },
